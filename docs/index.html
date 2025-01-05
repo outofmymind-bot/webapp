@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web App</title>
+  <title>Durger King - Web App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,19 +23,17 @@
   </style>
 </head>
 <body>
-  <h1>Добро пожаловать!</h1>
+  <h1>Добро пожаловать в Durger King!</h1>
   <p>Нажмите кнопку, чтобы заработать деньги!</p>
   
   <button id="clickButton">Клик!</button>
   <div id="balance">Баланс: 0</div>
 
-  <!-- Включаем Firebase SDK через script -->
-  <script type="module">
-    // Импортируем Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
-
+  <!-- Включаем Firebase SDK через script (старая версия) -->
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+  
+  <script>
     // Конфигурация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBDX4yEAm6-ZBv6zSOitBxMaS0Fy0LexHg",
@@ -49,23 +47,21 @@
     };
 
     // Инициализация Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const database = getDatabase(app);
+    firebase.initializeApp(firebaseConfig);
 
     // Идентификатор пользователя
     let userId = "user123";  // Можешь сделать его уникальным для каждого пользователя
 
     // Ссылка на балансы в Firebase
-    const balanceRef = ref(database, 'balances/' + userId);
+    const balanceRef = firebase.database().ref('balances/' + userId);
 
     // Функция для обновления баланса
     function updateBalance() {
-      get(balanceRef).then((snapshot) => {
+      balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
         balance = balance ? balance : 0; // если баланса нет, ставим 0
         balance += 10;  // Увеличиваем баланс
-        set(balanceRef, balance);  // Сохраняем новый баланс в Firebase
+        balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
         document.getElementById('balance').innerText = "Баланс: " + balance;
       });
     }
