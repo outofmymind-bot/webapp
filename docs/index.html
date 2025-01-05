@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web App</title>
+  <title>Durger King - Web App</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,25 +23,55 @@
   </style>
 </head>
 <body>
-  <h1>Добро пожаловать!</h1>
+  <h1>Добро пожаловать в Durger King!</h1>
   <p>Нажмите кнопку, чтобы заработать деньги!</p>
   
   <button id="clickButton">Клик!</button>
   <div id="balance">Баланс: 0</div>
 
-  <script>
-    let balance = 0;
-    let clicks = 0;
+  <!-- Включаем Firebase SDK через script -->
+  <script type="module">
+    // Импортируем Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-    // Функция для увеличения баланса при клике
-    function handleClick() {
-      clicks++;
-      balance += 10;  // Каждый клик добавляет 10 единиц к балансу
-      document.getElementById("balance").innerText = "Баланс: " + balance;
+    // Конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDX4yEAm6-ZBv6zSOitBxMaS0Fy0LexHg",
+      authDomain: "webapp-ce829.firebaseapp.com",
+      databaseURL: "https://webapp-ce829-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "webapp-ce829",
+      storageBucket: "webapp-ce829.firebasestorage.app",
+      messagingSenderId: "998997599277",
+      appId: "1:998997599277:web:a967a629ede57838a104a4",
+      measurementId: "G-5JLLT4GP7E"
+    };
+
+    // Инициализация Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase(app);
+
+    // Идентификатор пользователя
+    let userId = "user123";  // Можешь сделать его уникальным для каждого пользователя
+
+    // Ссылка на балансы в Firebase
+    const balanceRef = ref(database, 'balances/' + userId);
+
+    // Функция для обновления баланса
+    function updateBalance() {
+      get(balanceRef).then((snapshot) => {
+        let balance = snapshot.val();
+        balance = balance ? balance : 0; // если баланса нет, ставим 0
+        balance += 10;  // Увеличиваем баланс
+        set(balanceRef, balance);  // Сохраняем новый баланс в Firebase
+        document.getElementById('balance').innerText = "Баланс: " + balance;
+      });
     }
 
     // Обработчик клика
-    document.getElementById("clickButton").addEventListener("click", handleClick);
+    document.getElementById('clickButton').addEventListener('click', updateBalance);
   </script>
 </body>
 </html>
