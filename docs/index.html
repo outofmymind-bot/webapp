@@ -49,8 +49,15 @@
     // Инициализация Firebase
     firebase.initializeApp(firebaseConfig);
 
-    // Идентификатор пользователя
-    let userId = "user123";  // Можешь сделать его уникальным для каждого пользователя
+    // Получаем уникальный идентификатор пользователя из LocalStorage
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+      // Если идентификатор не найден, создаем новый и сохраняем в LocalStorage
+      userId = 'user_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('userId', userId);
+    }
+
+    console.log('Идентификатор пользователя:', userId);
 
     // Ссылка на балансы в Firebase
     const balanceRef = firebase.database().ref('balances/' + userId);
