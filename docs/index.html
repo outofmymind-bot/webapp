@@ -29,10 +29,10 @@
   <button id="clickButton">Клик!</button>
   <div id="balance">Баланс: 0</div>
 
-  <!-- Включаем Firebase SDK через script (старая версия) -->
+  <!-- Включаем Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
-  
+
   <script>
     // Конфигурация Firebase
     const firebaseConfig = {
@@ -80,6 +80,23 @@
 
     // Обработчик клика
     document.getElementById('clickButton').addEventListener('click', updateBalance);
+
+    // Отправляем Telegram ID и userId на сервер для связи
+    function linkTelegramAccount(telegramId) {
+      const url = `https://your-server-url/set_user_id?telegram_id=${telegramId}&user_id=${userId}`;
+      fetch(url)
+        .then(response => response.text())
+        .then(data => {
+          console.log("Привязка выполнена: ", data);
+        })
+        .catch(error => {
+          console.error("Ошибка привязки: ", error);
+        });
+    }
+
+    // Пример передачи ID (вместо реального бота)
+    // linkTelegramAccount('<Telegram_chat_id_here>');
+
   </script>
 </body>
 </html>
