@@ -57,12 +57,17 @@
 
     // Функция для обновления баланса
     function updateBalance() {
+      console.log("Кнопка нажата, пытаюсь обновить баланс...");
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
+        console.log("Текущий баланс: ", balance);
         balance = balance ? balance : 0; // если баланса нет, ставим 0
         balance += 10;  // Увеличиваем баланс
+        console.log("Новый баланс: ", balance);
         balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
         document.getElementById('balance').innerText = "Баланс: " + balance;
+      }).catch(function(error) {
+        console.log("Ошибка при чтении данных из Firebase: ", error);
       });
     }
 
