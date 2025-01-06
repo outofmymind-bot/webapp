@@ -235,12 +235,12 @@
 
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
-      document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
+      document.getElementById('upgradeButton').innerText = `Разовые хрюки (ур. ${upgradeLevel}) для следующего уровня ещё ${cost}`;
     });
 
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
-      document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
+      document.getElementById('hryukButton').innerText = `Периодические хрюки (ур. ${hryukLevel}) для следующего уровня ещё ${cost}`;
       startHryukanie();
     });
 
