@@ -156,13 +156,13 @@
       width: 25%;
     }
 
-    /* Контейнер для кнопки баланса, чтобы она была сразу под кнопкой "прокачать" */
+    /* Контейнер для кнопки баланса, чтобы она была сразу под именем свинки */
     .balance-container {
       width: 100%;
       padding: 10px;
       display: flex;
       justify-content: flex-start;  /* Изменение на "flex-start" для выравнивания слева */
-      margin-top: 10px;  /* Отступ после кнопки "Прокачать" */
+      margin-top: 2px;  /* Отступ после поля с именем свинки */
     }
 
     .balance-container button {
@@ -183,12 +183,12 @@
     <button id="saveButton">✔</button>
   </div>
 
-  <!-- Кнопка нахрюкано сразу под кнопкой прокачать -->
+  <!-- Кнопка баланса сразу под полем имени свинки -->
   <div class="balance-container">
-    <button id="balanceButton">Нахрюкано: 0</button>
+    <button id="balanceButton">Баланс</button>
   </div>
 
-  <!-- Кнопки с функционалом -->
+  <!-- Существующие кнопки и функционал -->
   <div class="button-container">
     <button id="upgradeButton">Прокачать</button>
     <button id="hryukButton">Хрюкаем</button>
@@ -230,7 +230,6 @@
 
     let upgradeLevel = 1;
     let hryukLevel = 1;
-    let totalHryukanie = 0; // Переменная для отслеживания накопленных монет
 
     pigNameRef.once('value').then(function(snapshot) {
       const pigName = snapshot.val();
@@ -272,8 +271,7 @@
 
     function startHryukanie() {
       setInterval(function() {
-        totalHryukanie += hryukLevel; // Увеличиваем количество монет
-        document.getElementById('balanceButton').innerText = `Нахрюкано: ${totalHryukanie}`; // Обновляем текст на кнопке
+        updateBalance(hryukLevel);
       }, 1000);
     }
 
