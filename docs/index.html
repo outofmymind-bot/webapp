@@ -228,7 +228,8 @@
           document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
           clickValue = upgradeLevel;
         } else {
-          alert("Недостаточно средств для прокачки!");
+          let neededAmount = cost - balance;
+          alert(`Недостаточно средств для прокачки! Нужно еще ${neededAmount} монет.`);
         }
       });
     });
@@ -246,7 +247,8 @@
           document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
           startHryukanie();
         } else {
-          alert("Недостаточно средств для хрюканья!");
+          let neededAmount = cost - balance;
+          alert(`Недостаточно средств для хрюканья! Нужно еще ${neededAmount} монет.`);
         }
       });
     });
