@@ -97,7 +97,7 @@
     #balanceButton {
       background-color: #2F353B;
       color: white;
-      margin-top: 2px; /* Отступ в 2 пикселя */
+      margin-top: 2px;
     }
 
     #balance {
@@ -138,18 +138,56 @@
       align-items: center;
       margin-top: 20px;
     }
+
+    /* Новый стиль для блока с полем ввода и кнопкой баланса */
+    .pig-name-container {
+      width: 100%;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pig-name-container #pigNameInput {
+      width: 70%;
+    }
+
+    .pig-name-container #saveButton {
+      width: 25%;
+    }
+
+    .balance-container {
+      width: 100%;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .balance-container button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      background-color: #2F353B;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <div class="top-bar">
+  <!-- Блок с именем свинки и кнопкой сохранения -->
+  <div class="pig-name-container">
     <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
     <button id="saveButton">✔</button>
   </div>
 
-  <button class="balance-button" id="balanceButton">Баланс</button>
+  <!-- Кнопка баланса в нижней части -->
+  <div class="balance-container">
+    <button id="balanceButton">Баланс</button>
+  </div>
 
-  <div id="balance">Баланс: 0</div>
-
+  <!-- Существующие кнопки и функционал -->
   <div class="button-container">
     <button id="upgradeButton">Прокачать</button>
     <button id="hryukButton">Хрюкаем</button>
