@@ -109,6 +109,7 @@
 
     // Ссылка на балансы в Firebase
     const balanceRef = firebase.database().ref('balances/' + userId);
+    const clickValueRef = firebase.database().ref('clickValue/' + userId);
 
     // Начальная стоимость клика
     let clickValue = 1;
@@ -123,6 +124,21 @@
         document.getElementById('balance').innerText = "Баланс: " + balance;
       });
     }
+
+    // Функция для увеличения баланса ежеминутно
+    function startHryukanie() {
+      setInterval(function() {
+        updateBalance(50); // Каждые 3 секунды увеличиваем баланс на 50
+      }, 3000); // Каждые 3 секунды
+    }
+
+    // Получаем стоимость клика из Firebase, чтобы она сохранялась между сессиями
+    clickValueRef.once('value').then(function(snapshot) {
+      let storedClickValue = snapshot.val();
+      if (storedClickValue) {
+        clickValue = storedClickValue;
+      }
+    });
 
     // Обработчик клика по всей странице, исключая кнопки
     document.body.addEventListener('click', function(event) {
@@ -141,6 +157,7 @@
           balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
           document.getElementById('balance').innerText = "Баланс: " + balance;
           clickValue = 2; // Каждый клик теперь будет приносить 2
+          clickValueRef.set(clickValue); // Сохраняем новое значение стоимости клика в Firebase
         } else {
           alert("Недостаточно средств для прокачки!");
         }
@@ -155,11 +172,7 @@
           balance -= 10; // Уменьшаем на 10
           balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
           document.getElementById('balance').innerText = "Баланс: " + balance;
-
-          // Запускаем таймер, который будет увеличивать баланс на 1 каждые 3 секунды
-          setInterval(function() {
-            updateBalance(1); // Каждый раз добавляем 1
-          }, 3000); // Каждые 3 секунды
+          startHryukanie(); // Запускаем процесс увеличения баланса
         } else {
           alert("Недостаточно средств для хрюканья!");
         }
