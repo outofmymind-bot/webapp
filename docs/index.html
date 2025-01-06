@@ -349,5 +349,64 @@
       }, 500);
     });
   </script>
+
+
+
+<script>
+  // Переменные для хранения времени последнего посещения
+  const lastVisitRef = firebase.database().ref('lastVisit/' + userId);
+
+  // Функция для расчёта баланса за время оффлайн
+  function calculateOfflineBalance() {
+    lastVisitRef.once('value').then((snapshot) => {
+      const lastVisit = snapshot.val();
+      const currentTime = Date.now();
+
+      // Если время последнего визита существует, рассчитываем разницу
+      if (lastVisit) {
+        const elapsedTime = (currentTime - lastVisit) / 1000; // Время в секундах
+        const offlineEarnings = Math.floor((elapsedTime * hryukLevel) / 2); // Баланс за оффлайн
+
+        // Обновляем баланс
+        if (offlineEarnings > 0) {
+          updateBalance(offlineEarnings);
+
+          // Отображаем сообщение о заработке
+          const earningsMessage = document.createElement('div');
+          earningsMessage.classList.add('modal');
+          earningsMessage.style.display = 'block';
+          earningsMessage.innerHTML = `
+            <div class="modal-content">
+              <h2>Пока вы отсутствовали:</h2>
+              <p>Вам было нахрюкано ${offlineEarnings} монет!</p>
+            </div>
+          `;
+          document.body.appendChild(earningsMessage);
+
+          // Убираем сообщение через 10 секунд
+          setTimeout(() => {
+            earningsMessage.remove();
+          }, 10000);
+        }
+      }
+
+      // Обновляем время последнего визита
+      lastVisitRef.set(currentTime);
+    });
+  }
+
+  // Вызываем функцию расчёта баланса за оффлайн при загрузке
+  window.addEventListener('load', calculateOfflineBalance);
+
+  // Обновляем время последнего визита при закрытии страницы
+  window.addEventListener('beforeunload', () => {
+    lastVisitRef.set(Date.now());
+  });
+</script>
+
+
+
+
+  
 </body>
 </html>
