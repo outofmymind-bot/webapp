@@ -266,34 +266,40 @@
         snapshot.forEach(function(childSnapshot) {
           const userId = childSnapshot.key;
           const balance = childSnapshot.val();
-          const pigName = childSnapshot.child('pigNames').val() || 'Без имени'; // Исправлено для получения pigName корректно
-          
-          players.push({ userId, pigName, balance });
+          const pigNameRef = firebase.database().ref('pigNames/' + userId);  // Получаем имя свинки для этого пользователя
+
+          pigNameRef.once('value').then(function(pigNameSnapshot) {
+            const pigName = pigNameSnapshot.val() || 'Без имени';  // Получаем имя или ставим "Без имени"
+            
+            players.push({ userId, pigName, balance });
+
+            // После того, как все данные собраны, сортируем пользователей по балансу
+            if (players.length === snapshot.numChildren()) {
+              players.sort(function(a, b) {
+                return b.balance - a.balance;
+              });
+
+              // Отображаем топ 5 пользователей
+              const playersList = document.getElementById('topPlayersList');
+              playersList.innerHTML = ''; // Очищаем список перед добавлением новых данных
+
+              players.slice(0, 5).forEach(function(player, index) {
+                const playerElement = document.createElement('li');
+                playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}`;
+                playersList.appendChild(playerElement);
+              });
+
+              // Показываем модальное окно с топ-5
+              const modal = document.getElementById('topModal');
+              modal.style.display = 'block';
+
+              // Закрываем окно через 10 секунд
+              setTimeout(function() {
+                modal.style.display = 'none';
+              }, 10000);
+            }
+          });
         });
-        
-        // Сортируем пользователей по балансу (от большего к меньшему)
-        players.sort(function(a, b) {
-          return b.balance - a.balance;
-        });
-
-        // Отображаем топ 5 пользователей
-        const playersList = document.getElementById('topPlayersList');
-        playersList.innerHTML = ''; // Очищаем список перед добавлением новых данных
-
-        players.slice(0, 5).forEach(function(player, index) {
-          const playerElement = document.createElement('li');
-          playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}`;
-          playersList.appendChild(playerElement);
-        });
-
-        // Показываем модальное окно с топ-5
-        const modal = document.getElementById('topModal');
-        modal.style.display = 'block';
-
-        // Закрываем окно через 10 секунд
-        setTimeout(function() {
-          modal.style.display = 'none';
-        }, 10000);
       });
     });
 
