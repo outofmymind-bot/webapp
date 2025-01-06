@@ -54,6 +54,12 @@
       display: none;
     }
 
+    #hryukLevel {
+      margin-top: 20px;
+      font-size: 18px;
+      color: white;
+    }
+
   </style>
 </head>
 <body>
@@ -62,9 +68,10 @@
   <button id="saveButton">Сохранить</button>
 
   <div id="balance">Баланс: 0</div>
+  <div id="hryukLevel">Уровень хрюкания: 0</div>
 
   <button id="upgradeButton">Прокачать (стоимость 100)</button>
-  <button id="hryukButton">Хрюкаем ежеминутно (стоимость 10)</button>
+  <button id="hryukButton">Хрюкаем ежеминутно</button>
   <button id="topButton">Лучшие</button>
 
   <div id="topPlayers">
@@ -96,11 +103,14 @@
     }
 
     const balanceRef = firebase.database().ref('balances/' + userId);
+    const hryukLevelRef = firebase.database().ref('hryukLevel/' + userId);
     const clickValueRef = firebase.database().ref('clickValue/' + userId);
     const pigNameRef = firebase.database().ref('pigNames/' + userId);
     const lastActionRef = firebase.database().ref('lastAction/' + userId);
 
     let clickValue = 1;
+    let hryukLevel = 0;
+    let hryukRate = 1;  // Сколько монет добавляется каждую секунду
 
     function updateBalance(amount) {
       balanceRef.once('value').then(function(snapshot) {
@@ -114,14 +124,23 @@
 
     function startHryukanie() {
       setInterval(function() {
-        updateBalance(50); 
-      }, 3000);
+        updateBalance(hryukRate); 
+      }, 1000);  // Каждую секунду
     }
 
     clickValueRef.once('value').then(function(snapshot) {
       let storedClickValue = snapshot.val();
       if (storedClickValue) {
         clickValue = storedClickValue;
+      }
+    });
+
+    hryukLevelRef.once('value').then(function(snapshot) {
+      let storedHryukLevel = snapshot.val();
+      if (storedHryukLevel) {
+        hryukLevel = storedHryukLevel;
+        hryukRate = hryukLevel;  // Каждый уровень дает +1 монету каждую секунду
+        document.getElementById('hryukLevel').innerText = "Уровень хрюкания: " + hryukLevel;
       }
     });
 
@@ -139,14 +158,17 @@
     });
 
     document.getElementById('upgradeButton').addEventListener('click', function() {
+      const upgradeCost = 1000 * Math.pow(10, hryukLevel);  // Стоимость прокачки увеличивается с каждым уровнем
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        if (balance >= 100) {
-          balance -= 100;
+        if (balance >= upgradeCost) {
+          balance -= upgradeCost;
           balanceRef.set(balance);
+          hryukLevel++;
+          hryukRate = hryukLevel;  // Уровень прокачки увеличивает скорость хрюканья
+          hryukLevelRef.set(hryukLevel);  // Сохраняем новый уровень хрюканья
           document.getElementById('balance').innerText = "Баланс: " + balance;
-          clickValue = 2;
-          clickValueRef.set(clickValue);
+          document.getElementById('hryukLevel').innerText = "Уровень хрюкания: " + hryukLevel;
         } else {
           alert("Недостаточно средств для прокачки!");
         }
@@ -161,7 +183,7 @@
           balanceRef.set(balance);
           document.getElementById('balance').innerText = "Баланс: " + balance;
           startHryukanie();
-          lastActionRef.set(Date.now());  // Сохраняем время последнего действия
+          lastActionRef.set(Date.now());
         } else {
           alert("Недостаточно средств для хрюканья!");
         }
@@ -176,7 +198,8 @@
           const userId = childSnapshot.key;
           const balance = childSnapshot.val();
           const pigName = childSnapshot.val('pigNames') || 'Без имени';
-          players.push({ userId, pigName, balance });
+          const hryukLevel = childSnapshot.val('hryukLevel') || 0;
+          players.push({ userId, pigName, balance, hryukLevel });
         });
 
         players.sort(function(a, b) {
@@ -188,12 +211,11 @@
 
         players.slice(0, 5).forEach(function(player, index) {
           const playerElement = document.createElement('li');
-          playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}`;
+          playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}, Уровень хрюкания: ${player.hryukLevel}`;
           playersList.appendChild(playerElement);
         });
 
         document.getElementById('topPlayers').style.display = 'block';
-
         setTimeout(function() {
           document.getElementById('topPlayers').style.display = 'none';
         }, 10000);
@@ -207,24 +229,6 @@
       pigNameRef.set(pigName);
     });
 
-    document.getElementById('saveButton').addEventListener('click', function() {
-      const pigName = document.getElementById('pigNameInput').value;
-      pigNameRef.set(pigName);
-    });
-
-    // Реализация начисления монет за время, если приложение закрыто
-    setInterval(function() {
-      lastActionRef.once('value').then(function(snapshot) {
-        const lastActionTime = snapshot.val();
-        if (lastActionTime) {
-          const timeDifference = Date.now() - lastActionTime;
-          const earnedCoins = Math.floor(timeDifference / 3000) * 50;  // Начисляем монеты за прошедшее время
-          if (earnedCoins > 0) {
-            updateBalance(earnedCoins);
-          }
-        }
-      });
-    }, 60000);  // Проверка каждую минуту
   </script>
 </body>
 </html>
