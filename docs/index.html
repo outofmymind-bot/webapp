@@ -97,7 +97,7 @@
     #balanceButton {
       background-color: #2F353B;
       color: white;
-      margin-top: 20px;
+      margin-top: 2px; /* Отступ в 2 пикселя */
     }
 
     #balance {
@@ -295,7 +295,6 @@
           playersList.appendChild(playerElement);
         });
 
-        console.log(players); // Логируем данные игроков для отладки
         document.getElementById('topPlayers').style.display = 'block';
       });
     });
@@ -318,15 +317,6 @@
         alert('Баланс: ' + balance);
       });
     });
-
-    // Добавляем обработчик нажатия на весь экран
-    document.body.addEventListener('click', function(event) {
-      // Игнорируем нажатия на кнопки
-      if (event.target.tagName !== 'BUTTON') {
-        updateBalance(upgradeLevel);
-      }
-    });
-
   </script>
 </body>
 </html>
