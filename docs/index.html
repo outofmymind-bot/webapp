@@ -279,7 +279,7 @@
         snapshot.forEach(function(childSnapshot) {
           const userId = childSnapshot.key;
           const balance = childSnapshot.val();
-          const pigName = childSnapshot.val('pigNames') || 'Без имени'; // Если имя не указано, ставим 'Без имени'
+          const pigName = childSnapshot.child('pigNames').val() || 'Без имени'; // Исправлено для получения pigName корректно
           
           players.push({ userId, pigName, balance });
         });
