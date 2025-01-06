@@ -158,6 +158,27 @@
       });
     }
 
+    // Загрузка времени последнего действия из Firebase
+    lastActionRef.once('value').then(function(snapshot) {
+      const lastActionTime = snapshot.val();
+      const currentTime = new Date().getTime();
+
+      // Если время последнего действия найдено
+      if (lastActionTime) {
+        const timeDifference = currentTime - lastActionTime;  // Разница во времени в миллисекундах
+        const timeDifferenceInMinutes = timeDifference / (1000 * 60);  // Преобразуем в минуты
+
+        // Начисляем монеты за прошедшее время (например, 1 монета за 1 минуту)
+        const coinsToAdd = Math.floor(timeDifferenceInMinutes);  // Начисляем целое количество монет
+        if (coinsToAdd > 0) {
+          updateBalance(coinsToAdd);
+        }
+      }
+
+      // Сохраняем текущее время как время последнего действия
+      lastActionRef.set(currentTime);
+    });
+
     // Загружаем уровень прокачки и хрюкания при загрузке страницы
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
