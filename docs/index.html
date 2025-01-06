@@ -41,6 +41,13 @@
       border: none;
       color: white;
     }
+
+    #hryukButton {
+      margin-top: 20px;
+      background-color: #9b59b6;
+      border: none;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -51,6 +58,7 @@
   <div id="balance">Баланс: 0</div>
 
   <button id="upgradeButton">Прокачать (стоимость 100)</button>
+  <button id="hryukButton">Хрюкаем ежеминутно (стоимость 10)</button>
 
   <!-- Включаем Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
@@ -87,6 +95,9 @@
 
     // Начальная стоимость клика
     let clickValue = 1;
+
+    // Таймер для хрюканья ежеминутно
+    let hryukInterval = null;
 
     // Функция для обновления баланса
     function updateBalance(amount) {
@@ -125,6 +136,32 @@
           clickValue = 2; // Каждый клик теперь будет приносить 2
         } else {
           alert("Недостаточно средств для прокачки!");
+        }
+      }).catch(function(error) {
+        console.log("Ошибка при чтении данных из Firebase: ", error);
+      });
+    });
+
+    // Обработчик клика по кнопке "Хрюкаем ежеминутно"
+    document.getElementById('hryukButton').addEventListener('click', function() {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        console.log("Текущий баланс перед хрюканьем: ", balance);
+        balance = balance ? balance : 0; // если баланса нет, ставим 0
+        if (balance >= 10) {
+          balance -= 10; // Уменьшаем на 10
+          console.log("Баланс после хрюканья: ", balance);
+          balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+
+          // Запускаем таймер, который будет увеличивать баланс на 1 каждые 3 секунды
+          if (!hryukInterval) {
+            hryukInterval = setInterval(function() {
+              updateBalance(1); // Каждый раз добавляем 1
+            }, 3000); // Каждые 3 секунды
+          }
+        } else {
+          alert("Недостаточно средств для хрюканья!");
         }
       }).catch(function(error) {
         console.log("Ошибка при чтении данных из Firebase: ", error);
