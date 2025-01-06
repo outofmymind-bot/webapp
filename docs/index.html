@@ -50,7 +50,7 @@
       background-color: #28a745;
       border: none;
       color: white;
-      font-size: 18px;
+      font-size: 16px;
       padding: 10px;
       cursor: pointer;
       border-radius: 0 4px 4px 0;
@@ -69,28 +69,35 @@
 
     .button-container button {
       width: 100%;
-      padding: 20px;
-      font-size: 20px;
+      padding: 15px;
+      font-size: 16px; /* Уменьшенный размер шрифта */
       cursor: pointer;
       margin-bottom: 5px;
+      background-color: #2F353B; /* Цвет RAL 7024 */
+      color: white;
+      border: none;
+      border-radius: 4px;
     }
 
     #topButton {
-      background-color: #f39c12;
-      border: none;
+      background-color: #2F353B;
       color: white;
     }
 
     #upgradeButton {
-      background-color: #007bff;
-      border: none;
+      background-color: #2F353B;
       color: white;
     }
 
     #hryukButton {
-      background-color: #e74c3c;
-      border: none;
+      background-color: #2F353B;
       color: white;
+    }
+
+    #balanceButton {
+      background-color: #2F353B;
+      color: white;
+      margin-top: 20px;
     }
 
     #balance {
@@ -120,11 +127,13 @@
     <button id="saveButton">✔</button>
   </div>
 
+  <button id="balanceButton">Баланс</button>
+
   <div id="balance">Баланс: 0</div>
 
   <div class="button-container">
-    <button id="upgradeButton">Прокачать (ур. 1)</button>
-    <button id="hryukButton">Хрюкаем (ур. 1)</button>
+    <button id="upgradeButton">Прокачать</button>
+    <button id="hryukButton">Хрюкаем</button>
     <button id="topButton">Лучшие</button>
   </div>
 
@@ -281,6 +290,13 @@
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
       localStorage.setItem('pigName', pigName);
+    });
+
+    document.getElementById('balanceButton').addEventListener('click', function() {
+      balanceRef.once('value').then(function(snapshot) {
+        const balance = snapshot.val();
+        alert('Баланс: ' + balance);
+      });
     });
   </script>
 </body>
