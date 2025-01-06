@@ -14,7 +14,10 @@
       background-position: center;
       background-attachment: fixed;
       margin: 0;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
     }
 
     .top-bar {
@@ -52,6 +55,13 @@
       background-color: #218838;
     }
 
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 20px;
+    }
+
     button {
       padding: 15px 30px;
       font-size: 18px;
@@ -66,13 +76,6 @@
       z-index: 1;
     }
 
-    #upgradeButton, #hryukButton, #topButton {
-      margin-top: 20px;
-      background-color: #f39c12;
-      border: none;
-      color: white;
-    }
-
     #topPlayers {
       margin-top: 20px;
       font-size: 18px;
@@ -82,6 +85,13 @@
       display: none;
     }
 
+    #topButton {
+      width: 100%;
+      background-color: #f39c12;
+      border: none;
+      color: white;
+      padding: 15px;
+    }
   </style>
 </head>
 <body>
@@ -92,8 +102,11 @@
 
   <div id="balance">Баланс: 0</div>
 
-  <button id="upgradeButton">Прокачать (ур. 1)</button>
-  <button id="hryukButton">Хрюкаем (ур. 1)</button>
+  <div class="button-container">
+    <button id="upgradeButton">Прокачать (ур. 1)</button>
+    <button id="hryukButton">Хрюкаем (ур. 1)</button>
+  </div>
+
   <button id="topButton">Лучшие</button>
 
   <div id="topPlayers">
