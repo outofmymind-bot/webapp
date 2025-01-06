@@ -21,7 +21,7 @@
       background-attachment: fixed;
       display: flex;
       flex-direction: column;
-      justify-content: space-between; /* Распределяем пространство между элементами */
+      justify-content: space-between;
       height: 100%;
     }
 
@@ -70,10 +70,10 @@
     .button-container button {
       width: 100%;
       padding: 15px;
-      font-size: 16px; /* Уменьшенный размер шрифта */
+      font-size: 16px;
       cursor: pointer;
       margin-bottom: 5px;
-      background-color: #2F353B; /* Цвет RAL 7024 */
+      background-color: #2F353B;
       color: white;
       border: none;
       border-radius: 4px;
@@ -125,7 +125,7 @@
       padding: 15px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #2F353B; /* Цвет RAL 7024 */
+      background-color: #2F353B;
       color: white;
       border: none;
       border-radius: 4px;
@@ -138,7 +138,6 @@
       align-items: center;
       margin-top: 20px;
     }
-
   </style>
 </head>
 <body>
@@ -147,7 +146,6 @@
     <button id="saveButton">✔</button>
   </div>
 
-  <!-- Кнопка баланса, теперь размещена ниже имени свинки -->
   <button class="balance-button" id="balanceButton">Баланс</button>
 
   <div id="balance">Баланс: 0</div>
@@ -297,6 +295,7 @@
           playersList.appendChild(playerElement);
         });
 
+        console.log(players); // Логируем данные игроков для отладки
         document.getElementById('topPlayers').style.display = 'block';
       });
     });
