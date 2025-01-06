@@ -17,54 +17,24 @@
       overflow: hidden;
     }
 
-    #nameBlock {
-      position: absolute;
-      top: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      background-color: rgba(255, 255, 255, 0.8);
-      padding: 5px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    #pigNameInput {
-      border: none;
-      padding: 10px;
-      font-size: 16px;
-      outline: none;
-      border-radius: 5px 0 0 5px;
-      flex-grow: 1;
-    }
-
-    #saveButton {
-      background-color: #28a745;
-      border: none;
-      color: white;
-      font-size: 16px;
-      padding: 10px;
-      border-radius: 0 5px 5px 0;
-      cursor: pointer;
-    }
-
-    #saveButton::after {
-      content: "✔"; /* Галочка */
+    button {
+      padding: 15px 30px;
       font-size: 18px;
+      cursor: pointer;
+      z-index: 1;
     }
 
     #balance {
-      margin-top: 80px; /* Отступ ниже блока имени */
+      margin-top: 20px;
       font-size: 24px;
       color: green;
       z-index: 1;
     }
 
-    button {
-      padding: 15px 30px;
+    #pigNameInput {
+      margin-top: 20px;
+      padding: 10px;
       font-size: 18px;
-      cursor: pointer;
       z-index: 1;
     }
 
@@ -83,13 +53,13 @@
       padding: 10px;
       display: none;
     }
+
   </style>
 </head>
 <body>
-  <div id="nameBlock">
-    <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
-    <button id="saveButton"></button>
-  </div>
+  <h1>Имя свинки:</h1>
+  <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
+  <button id="saveButton">Сохранить</button>
 
   <div id="balance">Баланс: 0</div>
 
@@ -119,22 +89,143 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    const pigNameRef = firebase.database().ref('pigNames/' + localStorage.getItem('userId'));
-    const pigNameInput = document.getElementById('pigNameInput');
-    const saveButton = document.getElementById('saveButton');
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+      userId = 'user_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('userId', userId);
+    }
 
-    pigNameInput.addEventListener('change', function() {
-      const pigName = pigNameInput.value;
+    const balanceRef = firebase.database().ref('balances/' + userId);
+    const clickValueRef = firebase.database().ref('clickValue/' + userId);
+    const pigNameRef = firebase.database().ref('pigNames/' + userId);
+    const lastActionRef = firebase.database().ref('lastAction/' + userId);
+    const upgradeLevelRef = firebase.database().ref('upgradeLevel/' + userId);
+    const hryukLevelRef = firebase.database().ref('hryukLevel/' + userId);
+
+    let clickValue = 1;
+    let upgradeLevel = 1;
+    let hryukLevel = 1;
+
+    function updateBalance(amount) {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        balance = balance ? balance : 0;
+        balance += amount;
+        balanceRef.set(balance);
+        document.getElementById('balance').innerText = "Баланс: " + balance;
+      });
+    }
+
+    // Загружаем уровень прокачки и хрюкания при загрузке страницы
+    upgradeLevelRef.once('value').then(function(snapshot) {
+      upgradeLevel = snapshot.val() || 1;
+      document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
+    });
+
+    hryukLevelRef.once('value').then(function(snapshot) {
+      hryukLevel = snapshot.val() || 1;
+      document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
+      
+      // Начинаем начисление с сохраненного уровня хрюканья
+      startHryukanie(); // Обновляем функцию для ежесекундного начисления
+    });
+
+    // Функция для ежесекундного начисления в зависимости от уровня хрюканья
+    function startHryukanie() {
+      setInterval(function() {
+        updateBalance(hryukLevel);  // Каждый уровень добавляет +1, +2, +3 и т. д.
+      }, 1000);  // Начисление каждую секунду
+    }
+
+    // Обработчик нажатия на кнопку прокачки
+    document.getElementById('upgradeButton').addEventListener('click', function() {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        let cost = 100 * Math.pow(10, upgradeLevel - 1);  // Стоимость увеличивается с уровнем
+        if (balance >= cost) {
+          balance -= cost;
+          upgradeLevel++;
+          balanceRef.set(balance);
+          upgradeLevelRef.set(upgradeLevel);
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+          document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
+          clickValue = upgradeLevel;  // Каждое нажатие теперь добавляет больше монет
+        } else {
+          alert("Недостаточно средств для прокачки!");
+        }
+      });
+    });
+
+    // Обработчик нажатия на кнопку хрюканья
+    document.getElementById('hryukButton').addEventListener('click', function() {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        let cost = 1000 * Math.pow(10, hryukLevel - 1);  // Стоимость хрюканья увеличивается с уровнем
+        if (balance >= cost) {
+          balance -= cost;
+          hryukLevel++;
+          balanceRef.set(balance);
+          hryukLevelRef.set(hryukLevel);
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+          document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
+
+          // Начинаем начисление монет каждую секунду, если еще не началось
+          startHryukanie();
+        } else {
+          alert("Недостаточно средств для хрюканья!");
+        }
+      });
+    });
+
+    // Обработчик кликов в любую часть экрана
+    document.body.addEventListener('click', function(event) {
+      if (!event.target.closest('button') && event.target !== document.getElementById('pigNameInput')) {
+        updateBalance(clickValue);  // Увеличиваем баланс на значение clickValue
+      }
+    });
+
+    document.getElementById('topButton').addEventListener('click', function() {
+      const topPlayersRef = firebase.database().ref('balances');
+      topPlayersRef.once('value', function(snapshot) {
+        const players = [];
+        snapshot.forEach(function(childSnapshot) {
+          const userId = childSnapshot.key;
+          const balance = childSnapshot.val();
+          const pigName = childSnapshot.val('pigNames') || 'Без имени';
+          players.push({ userId, pigName, balance });
+        });
+
+        players.sort(function(a, b) {
+          return b.balance - a.balance; // Сортируем по балансу, от большего к меньшему
+        });
+
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = ''; 
+
+        players.slice(0, 5).forEach(function(player, index) {
+          const playerElement = document.createElement('li');
+          playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}`;
+          playersList.appendChild(playerElement);
+        });
+
+        document.getElementById('topPlayers').style.display = 'block';
+
+        setTimeout(function() {
+          document.getElementById('topPlayers').style.display = 'none';
+        }, 10000);
+      });
+    });
+
+    document.getElementById('pigNameInput').addEventListener('change', function() {
+      const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
     });
 
-    saveButton.addEventListener('click', function() {
-      const pigName = pigNameInput.value;
+    document.getElementById('saveButton').addEventListener('click', function() {
+      const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
     });
+
   </script>
 </body>
 </html>
-
-
-
