@@ -17,6 +17,41 @@
       overflow: hidden;
     }
 
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 5px;
+    }
+
+    #pigNameInput {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+
+    #saveButton {
+      background-color: #28a745;
+      border: none;
+      color: white;
+      font-size: 18px;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 0 4px 4px 0;
+    }
+
+    #saveButton:hover {
+      background-color: #218838;
+    }
+
     button {
       padding: 15px 30px;
       font-size: 18px;
@@ -28,13 +63,6 @@
       margin-top: 20px;
       font-size: 24px;
       color: green;
-      z-index: 1;
-    }
-
-    #pigNameInput {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 18px;
       z-index: 1;
     }
 
@@ -57,9 +85,10 @@
   </style>
 </head>
 <body>
-  <h1>Имя свинки:</h1>
-  <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
-  <button id="saveButton">Сохранить</button>
+  <div class="top-bar">
+    <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
+    <button id="saveButton">✔</button>
+  </div>
 
   <div id="balance">Баланс: 0</div>
 
@@ -225,7 +254,6 @@
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
     });
-
   </script>
 </body>
 </html>
