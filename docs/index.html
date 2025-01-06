@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
   <title>Web App</title>
@@ -351,6 +353,16 @@
   </script>
 
 
+
+
+
+
+
+
+
+
+  
+
 <script>
   // Переменные для хранения времени последнего посещения
   const lastVisitRef = firebase.database().ref('lastVisit/' + userId);
@@ -374,18 +386,18 @@
           const earningsMessage = document.createElement('div');
           earningsMessage.classList.add('modal');
           earningsMessage.style.display = 'block';
-          earningsMessage.innerHTML = `
+          earningsMessage.innerHTML = 
             <div class="modal-content">
               <h2>Пока вы отсутствовали:</h2>
               <p>Вам было нахрюкано ${offlineEarnings} монет!</p>
             </div>
-          `;
+          ;
           document.body.appendChild(earningsMessage);
 
           // Убираем сообщение через 10 секунд
           setTimeout(() => {
             earningsMessage.remove();
-          }, 10000);
+          }, 5000);
         }
       }
 
@@ -402,6 +414,15 @@
     lastVisitRef.set(Date.now());
   });
 </script>
+
+
+
+
+
+
+
+
+
 
   
 </body>
