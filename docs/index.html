@@ -22,7 +22,7 @@
       background-attachment: fixed;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-end; /* Размещаем контент внизу */
       height: 100%;
     }
 
@@ -115,12 +115,13 @@
 
   <div id="balance">Баланс: 0</div>
 
-  <div class="button-group">
-    <button id="upgradeButton">Прокачать (ур. 1)</button>
-    <button id="hryukButton">Хрюкаем (ур. 1)</button>
+  <div class="button-container">
+    <div class="button-group">
+      <button id="upgradeButton">Прокачать (ур. 1)</button>
+      <button id="hryukButton">Хрюкаем (ур. 1)</button>
+    </div>
+    <button id="topButton">Лучшие</button>
   </div>
-
-  <button id="topButton">Лучшие</button>
 
   <div id="topPlayers">
     <h2>Топ 5 пользователей</h2>
