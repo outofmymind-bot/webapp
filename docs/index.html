@@ -97,7 +97,6 @@
     #balanceButton {
       background-color: #2F353B;
       color: white;
-      margin-top: 2px;
     }
 
     #balance {
@@ -157,11 +156,13 @@
       width: 25%;
     }
 
+    /* Контейнер для кнопки баланса, чтобы она была сразу под именем свинки */
     .balance-container {
       width: 100%;
       padding: 10px;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;  /* Изменение на "flex-start" для выравнивания слева */
+      margin-top: 2px;  /* Отступ после поля с именем свинки */
     }
 
     .balance-container button {
@@ -183,7 +184,7 @@
   </div>
 
   <!-- Кнопка баланса сразу под полем имени свинки -->
-  <div class="balance-container" style="margin-top: 2px;">
+  <div class="balance-container">
     <button id="balanceButton">Баланс</button>
   </div>
 
