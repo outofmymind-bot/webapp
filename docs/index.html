@@ -235,12 +235,12 @@
 
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
-      document.getElementById('upgradeButton').innerText = `Разовые хрюки (ур. ${upgradeLevel}) для следующего уровня ещё ${cost}`;
+      document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
     });
 
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
-      document.getElementById('hryukButton').innerText = `Периодические хрюки (ур. ${hryukLevel}) для следующего уровня ещё ${cost}`;
+      document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
       startHryukanie();
     });
 
@@ -260,7 +260,7 @@
           balanceRef.set(balance);
           upgradeLevelRef.set(upgradeLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          document.getElementById('upgradeButton').innerText = `Разовые хрюки (ур. ${upgradeLevel}) для следующего уровня ещё ${cost}`;
+          document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
         } else {
           alert(`Недостаточно средств для прокачки! Нужно еще ${cost - balance} монет.`);
         }
@@ -277,7 +277,7 @@
           balanceRef.set(balance);
           hryukLevelRef.set(hryukLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          document.getElementById('hryukButton').innerText = `Периодические хрюки (ур. ${hryukLevel}) для следующего уровня ещё ${cost}`;
+          document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
           startHryukanie();
         } else {
           alert(`Недостаточно средств для хрюканья! Нужно еще ${cost - balance} монет.`);
