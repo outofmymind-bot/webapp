@@ -135,7 +135,6 @@
     let upgradeLevel = 1;
     let hryukLevel = 1;
 
-    // Загружаем имя свинки из Firebase или localStorage
     pigNameRef.once('value').then(function(snapshot) {
       const pigName = snapshot.val();
       if (pigName) {
@@ -158,28 +157,20 @@
       });
     }
 
-    // Загрузка времени последнего действия из Firebase
     lastActionRef.once('value').then(function(snapshot) {
       const lastActionTime = snapshot.val();
       const currentTime = new Date().getTime();
-
-      // Если время последнего действия найдено
       if (lastActionTime) {
-        const timeDifference = currentTime - lastActionTime;  // Разница во времени в миллисекундах
-        const timeDifferenceInMinutes = timeDifference / (1000 * 60);  // Преобразуем в минуты
-
-        // Начисляем монеты за прошедшее время (например, 1 монета за 1 минуту)
-        const coinsToAdd = Math.floor(timeDifferenceInMinutes);  // Начисляем целое количество монет
+        const timeDifference = currentTime - lastActionTime;
+        const timeDifferenceInMinutes = timeDifference / (1000 * 60);
+        const coinsToAdd = Math.floor(timeDifferenceInMinutes);
         if (coinsToAdd > 0) {
           updateBalance(coinsToAdd);
         }
       }
-
-      // Сохраняем текущее время как время последнего действия
       lastActionRef.set(currentTime);
     });
 
-    // Загружаем уровень прокачки и хрюкания при загрузке страницы
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
       document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
@@ -188,23 +179,19 @@
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
       document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
-      
-      // Начинаем начисление с сохраненного уровня хрюканья
-      startHryukanie(); // Обновляем функцию для ежесекундного начисления
+      startHryukanie();
     });
 
-    // Функция для ежесекундного начисления в зависимости от уровня хрюканья
     function startHryukanie() {
       setInterval(function() {
-        updateBalance(hryukLevel);  // Каждый уровень добавляет +1, +2, +3 и т. д.
-      }, 1000);  // Начисление каждую секунду
+        updateBalance(hryukLevel);
+      }, 1000);
     }
 
-    // Обработчик нажатия на кнопку прокачки
     document.getElementById('upgradeButton').addEventListener('click', function() {
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        let cost = 100 * Math.pow(10, upgradeLevel - 1);  // Стоимость увеличивается с уровнем
+        let cost = 100 * Math.pow(10, upgradeLevel - 1);
         if (balance >= cost) {
           balance -= cost;
           upgradeLevel++;
@@ -212,18 +199,17 @@
           upgradeLevelRef.set(upgradeLevel);
           document.getElementById('balance').innerText = "Баланс: " + balance;
           document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
-          clickValue = upgradeLevel;  // Каждое нажатие теперь добавляет больше монет
+          clickValue = upgradeLevel;
         } else {
           alert("Недостаточно средств для прокачки!");
         }
       });
     });
 
-    // Обработчик нажатия на кнопку хрюканья
     document.getElementById('hryukButton').addEventListener('click', function() {
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        let cost = 1000 * Math.pow(10, hryukLevel - 1);  // Стоимость хрюканья увеличивается с уровнем
+        let cost = 1000 * Math.pow(10, hryukLevel - 1);
         if (balance >= cost) {
           balance -= cost;
           hryukLevel++;
@@ -231,8 +217,6 @@
           hryukLevelRef.set(hryukLevel);
           document.getElementById('balance').innerText = "Баланс: " + balance;
           document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
-
-          // Начинаем начисление монет каждую секунду, если еще не началось
           startHryukanie();
         } else {
           alert("Недостаточно средств для хрюканья!");
@@ -240,10 +224,9 @@
       });
     });
 
-    // Обработчик кликов в любую часть экрана
     document.body.addEventListener('click', function(event) {
       if (!event.target.closest('button') && event.target !== document.getElementById('pigNameInput')) {
-        updateBalance(clickValue);  // Увеличиваем баланс на значение clickValue
+        updateBalance(clickValue);
       }
     });
 
@@ -259,11 +242,11 @@
         });
 
         players.sort(function(a, b) {
-          return b.balance - a.balance; // Сортируем по балансу, от большего к меньшему
+          return b.balance - a.balance;
         });
 
         const playersList = document.getElementById('playersList');
-        playersList.innerHTML = ''; 
+        playersList.innerHTML = '';
 
         players.slice(0, 5).forEach(function(player, index) {
           const playerElement = document.createElement('li');
@@ -282,13 +265,13 @@
     document.getElementById('pigNameInput').addEventListener('change', function() {
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
-      localStorage.setItem('pigName', pigName);  // Сохраняем имя свинки в localStorage
+      localStorage.setItem('pigName', pigName);
     });
 
     document.getElementById('saveButton').addEventListener('click', function() {
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
-      localStorage.setItem('pigName', pigName);  // Сохраняем имя свинки в localStorage
+      localStorage.setItem('pigName', pigName);
     });
   </script>
 </body>
