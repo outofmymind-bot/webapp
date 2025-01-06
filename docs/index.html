@@ -135,6 +135,19 @@
     let upgradeLevel = 1;
     let hryukLevel = 1;
 
+    // Загружаем имя свинки из Firebase или localStorage
+    pigNameRef.once('value').then(function(snapshot) {
+      const pigName = snapshot.val();
+      if (pigName) {
+        document.getElementById('pigNameInput').value = pigName;
+      } else {
+        const savedPigName = localStorage.getItem('pigName');
+        if (savedPigName) {
+          document.getElementById('pigNameInput').value = savedPigName;
+        }
+      }
+    });
+
     function updateBalance(amount) {
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
@@ -248,11 +261,13 @@
     document.getElementById('pigNameInput').addEventListener('change', function() {
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
+      localStorage.setItem('pigName', pigName);  // Сохраняем имя свинки в localStorage
     });
 
     document.getElementById('saveButton').addEventListener('click', function() {
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
+      localStorage.setItem('pigName', pigName);  // Сохраняем имя свинки в localStorage
     });
   </script>
 </body>
