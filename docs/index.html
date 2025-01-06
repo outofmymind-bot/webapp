@@ -169,6 +169,13 @@
       });
     });
 
+    // Обработчик кликов в любую часть экрана
+    document.body.addEventListener('click', function(event) {
+      if (!event.target.closest('button') && event.target !== document.getElementById('pigNameInput')) {
+        updateBalance(clickValue);  // Увеличиваем баланс на значение clickValue
+      }
+    });
+
     document.getElementById('topButton').addEventListener('click', function() {
       const topPlayersRef = firebase.database().ref('balances');
       topPlayersRef.once('value', function(snapshot) {
