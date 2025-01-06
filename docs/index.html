@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Web App</title>
   <style>
     /* Устанавливаем фото свиньи на фон */
@@ -14,6 +14,8 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      margin: 0;
+      overflow: hidden; /* Блокирует возможный скролл */
     }
 
     button {
@@ -47,6 +49,13 @@
       background-color: #9b59b6;
       border: none;
       color: white;
+    }
+
+    /* Запрещаем зум и изменение масштаба */
+    html, body {
+      touch-action: manipulation;  /* Отключает возможность зума с помощью жестов */
+      -ms-touch-action: manipulation; /* Для старых версий IE */
+      user-select: none; /* Отключает выделение текста */
     }
   </style>
 </head>
