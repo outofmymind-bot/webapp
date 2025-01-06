@@ -202,27 +202,27 @@
 
     function formatNumber(number) {
       if (number >= 1e33) {
-        return (number / 1e33).toFixed(2) + ' Дециллион';
+        return (number / 1e33).toFixed(2) + ' Дециллионов';
       } else if (number >= 1e30) {
-        return (number / 1e30).toFixed(2) + ' Нониллион';
+        return (number / 1e30).toFixed(2) + ' Нониллионов';
       } else if (number >= 1e27) {
-        return (number / 1e27).toFixed(2) + ' Октиллион';
+        return (number / 1e27).toFixed(2) + ' Октиллионов';
       } else if (number >= 1e24) {
-        return (number / 1e24).toFixed(2) + ' Септиллион';
+        return (number / 1e24).toFixed(2) + ' Септиллионов';
       } else if (number >= 1e21) {
-        return (number / 1e21).toFixed(2) + ' Секстиллион';
+        return (number / 1e21).toFixed(2) + ' Секстиллионов';
       } else if (number >= 1e18) {
-        return (number / 1e18).toFixed(2) + ' Квинтиллион';
+        return (number / 1e18).toFixed(2) + ' Квинтлн';
       } else if (number >= 1e15) {
-        return (number / 1e15).toFixed(2) + ' Квадриллион';
+        return (number / 1e15).toFixed(2) + ' Квадрлн';
       } else if (number >= 1e12) {
-        return (number / 1e12).toFixed(2) + ' Триллион';
+        return (number / 1e12).toFixed(2) + ' Трлн';
       } else if (number >= 1e9) {
-        return (number / 1e9).toFixed(2) + ' Миллиард';
+        return (number / 1e9).toFixed(2) + ' Млрд';
       } else if (number >= 1e6) {
-        return (number / 1e6).toFixed(2) + ' Миллион';
+        return (number / 1e6).toFixed(2) + ' Млн';
       } else if (number >= 1e3) {
-        return (number / 1e3).toFixed(2) + ' Тысяча';
+        return (number / 1e3).toFixed(2) + ' Тысяч';
       } else {
         return number;
       }
