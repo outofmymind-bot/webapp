@@ -85,6 +85,9 @@
     // Ссылка на балансы в Firebase
     const balanceRef = firebase.database().ref('balances/' + userId);
 
+    // Начальная стоимость клика
+    let clickValue = 1;
+
     // Функция для обновления баланса
     function updateBalance(amount) {
       console.log("Кнопка нажата, пытаемся обновить баланс...");
@@ -104,7 +107,7 @@
 
     // Обработчик клика по кнопке "Клик!"
     document.getElementById('clickButton').addEventListener('click', function() {
-      updateBalance(1); // При клике увеличиваем на 1
+      updateBalance(clickValue); // При клике увеличиваем на текущую стоимость
     });
 
     // Обработчик клика по кнопке "Прокачать"
@@ -118,8 +121,8 @@
           console.log("Баланс после прокачки: ", balance);
           balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
           document.getElementById('balance').innerText = "Баланс: " + balance;
-          // Увеличиваем доход с кликов
-          updateBalance(2);  // При прокачке каждый клик будет прибавлять 2
+          // Прокачка увеличивает стоимость клика
+          clickValue = 2; // Каждый клик теперь будет приносить 2
         } else {
           alert("Недостаточно средств для прокачки!");
         }
