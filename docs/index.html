@@ -260,7 +260,7 @@
           balanceRef.set(balance);
           upgradeLevelRef.set(upgradeLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
+          document.getElementById('upgradeButton').innerText = `Разовые хрюки (ур. ${upgradeLevel}) для следующего уровня ещё ${cost}`;
         } else {
           alert(`Недостаточно средств для прокачки! Нужно еще ${cost - balance} монет.`);
         }
@@ -277,7 +277,7 @@
           balanceRef.set(balance);
           hryukLevelRef.set(hryukLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
+          document.getElementById('hryukButton').innerText = `Периодические хрюки (ур. ${hryukLevel}) для следующего уровня ещё ${cost}`;
           startHryukanie();
         } else {
           alert(`Недостаточно средств для хрюканья! Нужно еще ${cost - balance} монет.`);
