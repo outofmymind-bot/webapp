@@ -319,6 +319,15 @@
         alert('Баланс: ' + balance);
       });
     });
+
+    // Добавляем обработчик нажатия на весь экран
+    document.body.addEventListener('click', function(event) {
+      // Игнорируем нажатия на кнопки
+      if (event.target.tagName !== 'BUTTON') {
+        updateBalance(upgradeLevel);
+      }
+    });
+
   </script>
 </body>
 </html>
