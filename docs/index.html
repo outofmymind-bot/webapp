@@ -5,20 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Durger King - Web App</title>
   <style>
+    /* Устанавливаем фото свиньи на фон */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 50px;
+      background-image: url('https://a.d-cd.net/tEAAAgE2ZuA-1920.jpg'); /* Фото свиньи */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
     }
+
     button {
       padding: 15px 30px;
       font-size: 18px;
       cursor: pointer;
+      z-index: 1; /* Чтобы кнопка была поверх фона */
     }
+
     #balance {
       margin-top: 20px;
       font-size: 24px;
       color: green;
+      z-index: 1; /* Чтобы текст был поверх фона */
+    }
+
+    h1, p {
+      z-index: 1;
+      position: relative;
+    }
+
+    #upgradeButton {
+      margin-top: 20px;
+      background-color: #f39c12;
+      border: none;
+      color: white;
     }
   </style>
 </head>
@@ -28,6 +49,8 @@
   
   <button id="clickButton">Клик!</button>
   <div id="balance">Баланс: 0</div>
+
+  <button id="upgradeButton">Прокачать (стоимость 100)</button>
 
   <!-- Включаем Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
@@ -63,13 +86,14 @@
     const balanceRef = firebase.database().ref('balances/' + userId);
 
     // Функция для обновления баланса
-    function updateBalance() {
-      console.log("Кнопка нажата, пытаюсь обновить баланс...");
+    function updateBalance(amount) {
+      console.log("Кнопка нажата, пытаемся обновить баланс...");
+      
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
         console.log("Текущий баланс: ", balance);
         balance = balance ? balance : 0; // если баланса нет, ставим 0
-        balance += 10;  // Увеличиваем баланс
+        balance += amount;  // Увеличиваем или уменьшаем баланс
         console.log("Новый баланс: ", balance);
         balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
         document.getElementById('balance').innerText = "Баланс: " + balance;
@@ -78,25 +102,31 @@
       });
     }
 
-    // Обработчик клика
-    document.getElementById('clickButton').addEventListener('click', updateBalance);
+    // Обработчик клика по кнопке "Клик!"
+    document.getElementById('clickButton').addEventListener('click', function() {
+      updateBalance(1); // При клике увеличиваем на 1
+    });
 
-    // Отправляем Telegram ID и userId на сервер для связи
-    function linkTelegramAccount(telegramId) {
-      const url = `https://your-server-url/set_user_id?telegram_id=${telegramId}&user_id=${userId}`;
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          console.log("Привязка выполнена: ", data);
-        })
-        .catch(error => {
-          console.error("Ошибка привязки: ", error);
-        });
-    }
-
-    // Пример передачи ID (вместо реального бота)
-    // linkTelegramAccount('<Telegram_chat_id_here>');
-
+    // Обработчик клика по кнопке "Прокачать"
+    document.getElementById('upgradeButton').addEventListener('click', function() {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        console.log("Текущий баланс перед прокачкой: ", balance);
+        balance = balance ? balance : 0; // если баланса нет, ставим 0
+        if (balance >= 100) {
+          balance -= 100; // Уменьшаем на 100
+          console.log("Баланс после прокачки: ", balance);
+          balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+          // Увеличиваем доход с кликов
+          updateBalance(2);  // При прокачке каждый клик будет прибавлять 2
+        } else {
+          alert("Недостаточно средств для прокачки!");
+        }
+      }).catch(function(error) {
+        console.log("Ошибка при чтении данных из Firebase: ", error);
+      });
+    });
   </script>
 </body>
 </html>
