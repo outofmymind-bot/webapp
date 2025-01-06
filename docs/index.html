@@ -37,18 +37,20 @@
       position: relative;
     }
 
-    #upgradeButton {
+    #upgradeButton, #hryukButton, #topButton {
       margin-top: 20px;
       background-color: #f39c12;
       border: none;
       color: white;
     }
 
-    #hryukButton {
+    #topPlayers {
       margin-top: 20px;
-      background-color: #9b59b6;
-      border: none;
+      font-size: 18px;
       color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      display: none;
     }
 
     /* Запрещаем зум и изменение масштаба */
@@ -61,13 +63,19 @@
 </head>
 <body>
   <h1>Добро пожаловать!</h1>
-  <p>Нажмите кнопку, чтобы заработать деньги!</p>
+  <p>Нажмите в любое место, чтобы заработать деньги!</p>
   
   <button id="clickButton">Клик!</button>
   <div id="balance">Баланс: 0</div>
 
   <button id="upgradeButton">Прокачать (стоимость 100)</button>
   <button id="hryukButton">Хрюкаем ежеминутно (стоимость 10)</button>
+  <button id="topButton">Лучшие</button>
+
+  <div id="topPlayers">
+    <h2>Топ 10 игроков</h2>
+    <ul id="playersList"></ul>
+  </div>
 
   <!-- Включаем Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
@@ -105,49 +113,37 @@
     // Начальная стоимость клика
     let clickValue = 1;
 
-    // Таймер для хрюканья ежеминутно
-    let hryukInterval = null;
-
     // Функция для обновления баланса
     function updateBalance(amount) {
-      console.log("Кнопка нажата, пытаемся обновить баланс...");
-      
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        console.log("Текущий баланс: ", balance);
         balance = balance ? balance : 0; // если баланса нет, ставим 0
         balance += amount;  // Увеличиваем или уменьшаем баланс
-        console.log("Новый баланс: ", balance);
         balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
         document.getElementById('balance').innerText = "Баланс: " + balance;
-      }).catch(function(error) {
-        console.log("Ошибка при чтении данных из Firebase: ", error);
       });
     }
 
-    // Обработчик клика по кнопке "Клик!"
-    document.getElementById('clickButton').addEventListener('click', function() {
-      updateBalance(clickValue); // При клике увеличиваем на текущую стоимость
+    // Обработчик клика по всей странице, исключая кнопки
+    document.body.addEventListener('click', function(event) {
+      // Проверяем, был ли клик сделан по кнопке
+      if (!event.target.closest('button')) {
+        updateBalance(clickValue); // При клике увеличиваем на текущую стоимость
+      }
     });
 
     // Обработчик клика по кнопке "Прокачать"
     document.getElementById('upgradeButton').addEventListener('click', function() {
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        console.log("Текущий баланс перед прокачкой: ", balance);
-        balance = balance ? balance : 0; // если баланса нет, ставим 0
         if (balance >= 100) {
           balance -= 100; // Уменьшаем на 100
-          console.log("Баланс после прокачки: ", balance);
           balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
           document.getElementById('balance').innerText = "Баланс: " + balance;
-          // Прокачка увеличивает стоимость клика
           clickValue = 2; // Каждый клик теперь будет приносить 2
         } else {
           alert("Недостаточно средств для прокачки!");
         }
-      }).catch(function(error) {
-        console.log("Ошибка при чтении данных из Firebase: ", error);
       });
     });
 
@@ -155,27 +151,55 @@
     document.getElementById('hryukButton').addEventListener('click', function() {
       balanceRef.once('value').then(function(snapshot) {
         let balance = snapshot.val();
-        console.log("Текущий баланс перед хрюканьем: ", balance);
-        balance = balance ? balance : 0; // если баланса нет, ставим 0
         if (balance >= 10) {
           balance -= 10; // Уменьшаем на 10
-          console.log("Баланс после хрюканья: ", balance);
           balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
           document.getElementById('balance').innerText = "Баланс: " + balance;
 
           // Запускаем таймер, который будет увеличивать баланс на 1 каждые 3 секунды
-          if (!hryukInterval) {
-            hryukInterval = setInterval(function() {
-              updateBalance(1); // Каждый раз добавляем 1
-            }, 3000); // Каждые 3 секунды
-          }
+          setInterval(function() {
+            updateBalance(1); // Каждый раз добавляем 1
+          }, 3000); // Каждые 3 секунды
         } else {
           alert("Недостаточно средств для хрюканья!");
         }
-      }).catch(function(error) {
-        console.log("Ошибка при чтении данных из Firebase: ", error);
       });
     });
+
+    // Функция для получения топ-10 игроков
+    function showTopPlayers() {
+      const topPlayersRef = firebase.database().ref('balances');
+
+      topPlayersRef.orderByValue().limitToLast(10).once('value', function(snapshot) {
+        const players = [];
+        snapshot.forEach(function(childSnapshot) {
+          const userId = childSnapshot.key;
+          const balance = childSnapshot.val();
+          players.push({ userId, balance });
+        });
+
+        // Сортируем игроков по балансу в убывающем порядке
+        players.sort(function(a, b) {
+          return b.balance - a.balance;
+        });
+
+        // Отображаем топ-10 игроков
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = ''; // Очищаем список
+
+        players.slice(0, 10).forEach(function(player, index) {
+          const playerElement = document.createElement('li');
+          playerElement.textContent = `${index + 1}. ${player.userId} - Баланс: ${player.balance}`;
+          playersList.appendChild(playerElement);
+        });
+
+        // Показываем список
+        document.getElementById('topPlayers').style.display = 'block';
+      });
+    }
+
+    // Обработчик клика по кнопке "Лучшие"
+    document.getElementById('topButton').addEventListener('click', showTopPlayers);
   </script>
 </body>
 </html>
