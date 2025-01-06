@@ -67,7 +67,6 @@
       margin-top: 20px;
     }
 
-    /* Изменение для двух строк кнопок */
     .button-container button {
       width: 48%;
       padding: 15px;
@@ -80,37 +79,12 @@
       border-radius: 4px;
     }
 
-    .button-container .top-button-row {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* Новый стиль для блока с полем ввода и кнопкой сохранения */
-    .pig-name-container {
-      width: 100%;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .pig-name-container #pigNameInput {
-      width: 70%;
-    }
-
-    .pig-name-container #saveButton {
-      width: 25%;
-    }
-
-    /* Новые стили для расположения кнопок в две строки внизу */
     .bottom-button-row {
       display: flex;
       justify-content: space-between;
       padding-bottom: 20px;
     }
 
-    /* Стили для модального окна */
     .modal {
       display: none;
       position: fixed;
@@ -142,29 +116,41 @@
       font-size: 18px;
     }
 
+    .hryu-text {
+      position: absolute;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      animation: pop-up 0.5s ease-out;
+    }
+
+    @keyframes pop-up {
+      0% {
+        transform: scale(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Блок с именем свинки и кнопкой сохранения -->
   <div class="pig-name-container">
     <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
     <button id="saveButton">✔</button>
   </div>
 
-  <!-- Существующие кнопки и функционал -->
   <div class="button-container">
-    <!-- Разделяем кнопки на две строки, все внизу -->
     <div class="bottom-button-row">
       <button id="upgradeButton">Прокачать</button>
       <button id="hryukButton">Хрюкаем</button>
     </div>
     <div class="bottom-button-row">
       <button id="topButton">Лучшие</button>
-      <button id="balanceButton">Нахрюкано 0</button> <!-- Баланс будет обновляться в JavaScript -->
+      <button id="balanceButton">Нахрюкано 0</button>
     </div>
   </div>
 
-  <!-- Модальное окно для отображения топ 5 пользователей -->
   <div class="modal" id="topModal">
     <div class="modal-content">
       <h2>Топ 5 пользователей</h2>
@@ -306,18 +292,15 @@
           playersList.appendChild(playerElement);
         });
 
-        // Показываем модальное окно
         const modal = document.getElementById('topModal');
         modal.style.display = 'block';
 
-        // Скрываем окно через 10 секунд
         setTimeout(function() {
           modal.style.display = 'none';
         }, 10000);
       });
     });
 
-    // Закрытие модального окна при нажатии на него
     document.getElementById('topModal').addEventListener('click', function() {
       this.style.display = 'none';
     });
@@ -332,6 +315,28 @@
       const pigName = document.getElementById('pigNameInput').value;
       pigNameRef.set(pigName);
       localStorage.setItem('pigName', pigName);
+    });
+
+    // Новый обработчик для клика по экрану
+    document.body.addEventListener('click', function(event) {
+      const clickX = event.pageX;
+      const clickY = event.pageY;
+
+      // Отображаем "Хрю!" в месте клика
+      const hruText = document.createElement('div');
+      hruText.classList.add('hryu-text');
+      hruText.innerText = 'Хрю!';
+      hruText.style.left = `${clickX - 30}px`;  // Позиционируем немного влево от клика
+      hruText.style.top = `${clickY - 20}px`;   // Позиционируем немного выше от клика
+      document.body.appendChild(hruText);
+
+      // Убираем текст через 1 секунду
+      setTimeout(() => {
+        hruText.remove();
+      }, 1000);
+
+      // Увеличиваем баланс
+      updateBalance(upgradeLevel);
     });
   </script>
 </body>
