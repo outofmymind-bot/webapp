@@ -268,23 +268,30 @@
       });
     });
 
+    // Обработчик для кнопки "Лучшие"
     document.getElementById('topButton').addEventListener('click', function() {
       const topPlayersRef = firebase.database().ref('balances');
+      
+      // Загружаем все данные пользователей
       topPlayersRef.once('value', function(snapshot) {
         const players = [];
+        
         snapshot.forEach(function(childSnapshot) {
           const userId = childSnapshot.key;
           const balance = childSnapshot.val();
-          const pigName = childSnapshot.val('pigNames') || 'Без имени';
+          const pigName = childSnapshot.val('pigNames') || 'Без имени'; // Если имя не указано, ставим 'Без имени'
+          
           players.push({ userId, pigName, balance });
         });
-
+        
+        // Сортируем пользователей по балансу (от большего к меньшему)
         players.sort(function(a, b) {
           return b.balance - a.balance;
         });
 
+        // Отображаем топ 5 пользователей
         const playersList = document.getElementById('topPlayersList');
-        playersList.innerHTML = '';
+        playersList.innerHTML = ''; // Очищаем список перед добавлением новых данных
 
         players.slice(0, 5).forEach(function(player, index) {
           const playerElement = document.createElement('li');
@@ -292,15 +299,18 @@
           playersList.appendChild(playerElement);
         });
 
+        // Показываем модальное окно с топ-5
         const modal = document.getElementById('topModal');
         modal.style.display = 'block';
 
+        // Закрываем окно через 10 секунд
         setTimeout(function() {
           modal.style.display = 'none';
         }, 10000);
       });
     });
 
+    // Закрытие модального окна при клике на него
     document.getElementById('topModal').addEventListener('click', function() {
       this.style.display = 'none';
     });
@@ -325,18 +335,15 @@
       // Отображаем "Хрю!" в месте клика
       const hruText = document.createElement('div');
       hruText.classList.add('hryu-text');
-      hruText.innerText = 'Хрю!';
-      hruText.style.left = `${clickX - 30}px`;  // Позиционируем немного влево от клика
-      hruText.style.top = `${clickY - 20}px`;   // Позиционируем немного выше от клика
+      hruText.style.left = `${clickX}px`;
+      hruText.style.top = `${clickY}px`;
+      hruText.textContent = 'Хрю!';
       document.body.appendChild(hruText);
 
-      // Убираем текст через 1 секунду
-      setTimeout(() => {
+      // Анимация исчезновения текста
+      setTimeout(function() {
         hruText.remove();
-      }, 1000);
-
-      // Увеличиваем баланс
-      updateBalance(upgradeLevel);
+      }, 500);
     });
   </script>
 </body>
