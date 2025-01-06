@@ -208,12 +208,12 @@
 
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
-      document.getElementById('upgradeButton').innerText = Прокачать (ур. ${upgradeLevel});
+      document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
     });
 
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
-      document.getElementById('hryukButton').innerText = Хрюкаем (ур. ${hryukLevel});
+      document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
       startHryukanie();
     });
 
@@ -233,9 +233,9 @@
           balanceRef.set(balance);
           upgradeLevelRef.set(upgradeLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + balance;
-          document.getElementById('upgradeButton').innerText = Прокачать (ур. ${upgradeLevel});
+          document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
         } else {
-          alert(Недостаточно средств для прокачки! Нужно еще ${cost - balance} монет.);
+          alert(`Недостаточно средств для прокачки! Нужно еще ${cost - balance} монет.`);
         }
       });
     });
@@ -250,10 +250,10 @@
           balanceRef.set(balance);
           hryukLevelRef.set(hryukLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + balance;
-          document.getElementById('hryukButton').innerText = Хрюкаем (ур. ${hryukLevel});
+          document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
           startHryukanie();
         } else {
-          alert(Недостаточно средств для хрюканья! Нужно еще ${cost - balance} монет.);
+          alert(`Недостаточно средств для хрюканья! Нужно еще ${cost - balance} монет.`);
         }
       });
     });
@@ -288,7 +288,7 @@
 
               players.slice(0, 5).forEach(function(player, index) {
                 const playerElement = document.createElement('li');
-                playerElement.textContent = ${index + 1}. ${player.pigName} - Баланс: ${player.balance};
+                playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${player.balance}`;
                 playersList.appendChild(playerElement);
               });
 
@@ -331,8 +331,8 @@
       // Отображаем "Хрю!" в месте клика
       const hruText = document.createElement('div');
       hruText.classList.add('hryu-text');
-      hruText.style.left = ${clickX}px;
-      hruText.style.top = ${clickY}px;
+      hruText.style.left = `${clickX}px`;
+      hruText.style.top = `${clickY}px`;
       hruText.textContent = 'Хрю!';
 
       // Воспроизводим звук хрюканья
