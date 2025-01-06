@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
   <title>Web App</title>
   <style>
+    /* Стили остаются такими же */
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       overflow: hidden;
     }
-
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -24,7 +24,6 @@
       justify-content: space-between;
       height: 100%;
     }
-
     .top-bar {
       position: absolute;
       top: 0;
@@ -36,7 +35,6 @@
       background-color: rgba(0, 0, 0, 0.6);
       padding: 5px;
     }
-
     #pigNameInput {
       flex: 1;
       padding: 10px;
@@ -45,7 +43,6 @@
       border-radius: 4px 0 0 4px;
       outline: none;
     }
-
     #saveButton {
       background-color: #28a745;
       border: none;
@@ -55,18 +52,15 @@
       cursor: pointer;
       border-radius: 0 4px 4px 0;
     }
-
     #saveButton:hover {
       background-color: #218838;
     }
-
     .button-container {
       display: flex;
       flex-direction: column;
       width: 100%;
       margin-top: 20px;
     }
-
     .button-container button {
       width: 48%;
       padding: 15px;
@@ -78,13 +72,11 @@
       border: none;
       border-radius: 4px;
     }
-
     .bottom-button-row {
       display: flex;
       justify-content: space-between;
       padding-bottom: 20px;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -98,24 +90,20 @@
       padding-top: 50px;
       z-index: 999;
     }
-
     .modal-content {
       background-color: rgba(0, 0, 0, 0.8);
       border-radius: 5px;
       padding: 20px;
       display: inline-block;
     }
-
     .modal-content ul {
       list-style: none;
       padding: 0;
     }
-
     .modal-content li {
       margin: 10px 0;
       font-size: 18px;
     }
-
     .hryu-text {
       position: absolute;
       color: white;
@@ -123,7 +111,6 @@
       font-weight: bold;
       animation: pop-up 0.5s ease-out;
     }
-
     @keyframes pop-up {
       0% {
         transform: scale(0);
@@ -338,6 +325,10 @@
       hruText.style.left = `${clickX}px`;
       hruText.style.top = `${clickY}px`;
       hruText.textContent = 'Хрю!';
+
+      // Увеличиваем баланс при клике
+      updateBalance(hryukLevel);
+
       document.body.appendChild(hruText);
 
       // Анимация исчезновения текста
