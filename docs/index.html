@@ -2,181 +2,239 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Игровое приложение</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Web App</title>
   <style>
+    /* Устанавливаем фото свиньи на фон */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 50px;
-      background-image: url('https://a.d-cd.net/tEAAAgE2ZuA-1920.jpg');
+      background-image: url('https://a.d-cd.net/tEAAAgE2ZuA-1920.jpg'); /* Фото свиньи */
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
+      margin: 0;
+      overflow: hidden; /* Блокирует возможный скролл */
     }
+
     button {
       padding: 15px 30px;
       font-size: 18px;
       cursor: pointer;
+      z-index: 1; /* Чтобы кнопка была поверх фона */
     }
+
     #balance {
       margin-top: 20px;
       font-size: 24px;
       color: green;
+      z-index: 1; /* Чтобы текст был поверх фона */
     }
+
     #pigNameInput {
+      margin-top: 20px;
+      padding: 10px;
       font-size: 18px;
-      margin-bottom: 20px;
+      z-index: 1;
     }
+
+    #upgradeButton, #hryukButton, #topButton {
+      margin-top: 20px;
+      background-color: #f39c12;
+      border: none;
+      color: white;
+    }
+
     #topPlayers {
+      margin-top: 20px;
+      font-size: 18px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px;
       display: none;
     }
-    .input-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .save-button {
-      margin-left: 10px;
-      padding: 10px 15px;
-      font-size: 20px;
-      background-color: green;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .save-button:hover {
-      background-color: darkgreen;
+
+    /* Запрещаем зум и изменение масштаба */
+    html, body {
+      touch-action: manipulation;  /* Отключает возможность зума с помощью жестов */
+      -ms-touch-action: manipulation; /* Для старых версий IE */
+      user-select: none; /* Отключает выделение текста */
     }
   </style>
 </head>
 <body>
-
-  <h1>Добро пожаловать в игру!</h1>
-  
-  <div class="input-container">
-    <input type="text" id="pigNameInput" placeholder="Имя свинки" value="">
-    <button class="save-button" id="saveButton">✔️</button>
-  </div>
+  <h1>Имя свинки:</h1>
+  <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
 
   <div id="balance">Баланс: 0</div>
 
-  <button id="hryukButton">Хрюкаем ежеминутно</button>
+  <button id="upgradeButton">Прокачать (стоимость 100)</button>
+  <button id="hryukButton">Хрюкаем ежеминутно (стоимость 10)</button>
   <button id="topButton">Лучшие</button>
-  <button id="upgradeButton">Прокачать</button>
-  
+
   <div id="topPlayers">
-    <h2>Топ 5 игроков:</h2>
-    <ul id="topList"></ul>
+    <h2>Топ 10 пользователей</h2>
+    <ul id="playersList"></ul>
   </div>
 
+  <!-- Включаем Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+
   <script>
-    // Проверяем и инициализируем локальные данные
-    let userId = "user123"; // Может быть динамическим
-    let lastActionTime = localStorage.getItem('lastActionTime');
-    let balance = parseInt(localStorage.getItem('balance')) || 0;
-    let clickValue = parseInt(localStorage.getItem('clickValue')) || 1;
-    let pigName = localStorage.getItem('pigName') || "";
-    let incrementPer3Sec = parseInt(localStorage.getItem('incrementPer3Sec')) || 50; // Увеличение каждые 3 секунды
+    // Конфигурация Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDX4yEAm6-ZBv6zSOitBxMaS0Fy0LexHg",
+      authDomain: "webapp-ce829.firebaseapp.com",
+      databaseURL: "https://webapp-ce829-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "webapp-ce829",
+      storageBucket: "webapp-ce829.firebasestorage.app",
+      messagingSenderId: "998997599277",
+      appId: "1:998997599277:web:a967a629ede57838a104a4",
+      measurementId: "G-5JLLT4GP7E"
+    };
 
-    // Обновляем баланс при загрузке
-    function updateBalanceDisplay() {
-      document.getElementById('balance').innerText = "Баланс: " + balance;
+    // Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Получаем уникальный идентификатор пользователя из LocalStorage
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+      // Если идентификатор не найден, создаем новый и сохраняем в LocalStorage
+      userId = 'user_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('userId', userId);
     }
 
-    // Вычисляем разницу во времени и увеличиваем баланс
-    function applyOfflineEarnings() {
-      if (lastActionTime) {
-        let timeDifference = Date.now() - lastActionTime;
-        let earnedPoints = Math.floor(timeDifference / 3000) * incrementPer3Sec; // Увеличение монет за время отсутствия
-        balance += earnedPoints;
-        localStorage.setItem('balance', balance); // Сохраняем новый баланс
-        localStorage.setItem('lastActionTime', Date.now()); // Обновляем время последнего действия
-        updateBalanceDisplay();
+    console.log('Идентификатор пользователя:', userId);
+
+    // Ссылка на балансы в Firebase
+    const balanceRef = firebase.database().ref('balances/' + userId);
+    const clickValueRef = firebase.database().ref('clickValue/' + userId);
+    const pigNameRef = firebase.database().ref('pigNames/' + userId);
+
+    // Начальная стоимость клика
+    let clickValue = 1;
+
+    // Функция для обновления баланса
+    function updateBalance(amount) {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        balance = balance ? balance : 0; // если баланса нет, ставим 0
+        balance += amount;  // Увеличиваем или уменьшаем баланс
+        balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
+        document.getElementById('balance').innerText = "Баланс: " + balance;
+      });
+    }
+
+    // Функция для увеличения баланса ежеминутно
+    function startHryukanie() {
+      setInterval(function() {
+        updateBalance(50); // Каждые 3 секунды увеличиваем баланс на 50
+      }, 3000); // Каждые 3 секунды
+    }
+
+    // Получаем стоимость клика из Firebase, чтобы она сохранялась между сессиями
+    clickValueRef.once('value').then(function(snapshot) {
+      let storedClickValue = snapshot.val();
+      if (storedClickValue) {
+        clickValue = storedClickValue;
       }
-    }
+    });
 
-    // Слушаем события нажатия
-    document.body.addEventListener('click', function() {
-      balance += clickValue; // Увеличиваем баланс на значение клика
-      localStorage.setItem('balance', balance);
-      localStorage.setItem('lastActionTime', Date.now()); // Обновляем время последнего действия
-      updateBalanceDisplay();
+    // Получаем имя свинки из Firebase
+    pigNameRef.once('value').then(function(snapshot) {
+      const storedPigName = snapshot.val();
+      if (storedPigName) {
+        document.getElementById('pigNameInput').value = storedPigName;
+      }
+    });
+
+    // Обработчик клика по всей странице, исключая кнопки
+    document.body.addEventListener('click', function(event) {
+      // Проверяем, был ли клик сделан по кнопке
+      if (!event.target.closest('button') && event.target !== document.getElementById('pigNameInput')) {
+        updateBalance(clickValue); // При клике увеличиваем на текущую стоимость
+      }
     });
 
     // Обработчик клика по кнопке "Прокачать"
     document.getElementById('upgradeButton').addEventListener('click', function() {
-      if (balance >= 100) {
-        balance -= 100;
-        clickValue = 2; // Увеличиваем значение клика
-        localStorage.setItem('clickValue', clickValue); // Сохраняем новый clickValue
-        localStorage.setItem('balance', balance);
-        updateBalanceDisplay();
-      } else {
-        alert("Недостаточно средств для прокачки!");
-      }
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        if (balance >= 100) {
+          balance -= 100; // Уменьшаем на 100
+          balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+          clickValue = 2; // Каждый клик теперь будет приносить 2
+          clickValueRef.set(clickValue); // Сохраняем новое значение стоимости клика в Firebase
+        } else {
+          alert("Недостаточно средств для прокачки!");
+        }
+      });
     });
 
     // Обработчик клика по кнопке "Хрюкаем ежеминутно"
     document.getElementById('hryukButton').addEventListener('click', function() {
-      if (balance >= 10) {
-        balance -= 10; // Уменьшаем на 10
-        localStorage.setItem('balance', balance);
-        updateBalanceDisplay();
-
-        setInterval(function() {
-          balance += incrementPer3Sec; // Увеличиваем баланс на значение, которое указано для каждых 3 секунд
-          localStorage.setItem('balance', balance);
-          updateBalanceDisplay();
-        }, 3000); // Каждые 3 секунды
-      } else {
-        alert("Недостаточно средств для хрюканья!");
-      }
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        if (balance >= 10) {
+          balance -= 10; // Уменьшаем на 10
+          balanceRef.set(balance);  // Сохраняем новый баланс в Firebase
+          document.getElementById('balance').innerText = "Баланс: " + balance;
+          startHryukanie(); // Запускаем процесс увеличения баланса
+        } else {
+          alert("Недостаточно средств для хрюканья!");
+        }
+      });
     });
+
+    // Функция для получения топ-10 игроков
+    function showTopPlayers() {
+      const topPlayersRef = firebase.database().ref('pigNames');
+
+      topPlayersRef.once('value', function(snapshot) {
+        const players = [];
+        snapshot.forEach(function(childSnapshot) {
+          const userId = childSnapshot.key;
+          const pigName = childSnapshot.val();
+          players.push({ userId, pigName });
+        });
+
+        // Сортируем игроков по имени свинки
+        players.sort(function(a, b) {
+          return a.pigName.localeCompare(b.pigName);
+        });
+
+        // Отображаем топ-10 игроков
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = ''; // Очищаем список
+
+        players.slice(0, 10).forEach(function(player, index) {
+          const playerElement = document.createElement('li');
+          playerElement.textContent = `${index + 1}. ${player.pigName}`;
+          playersList.appendChild(playerElement);
+        });
+
+        // Показываем список
+        document.getElementById('topPlayers').style.display = 'block';
+
+        // Закрываем список через 10 секунд или при повторном нажатии на кнопку
+        setTimeout(function() {
+          document.getElementById('topPlayers').style.display = 'none';
+        }, 10000);
+      });
+    }
 
     // Обработчик клика по кнопке "Лучшие"
-    document.getElementById('topButton').addEventListener('click', function() {
-      let topList = document.getElementById('topList');
-      topList.innerHTML = ''; // Очистить текущий список
+    document.getElementById('topButton').addEventListener('click', showTopPlayers);
 
-      // Получаем данные из localStorage и отображаем топ 5
-      let players = JSON.parse(localStorage.getItem('players')) || [];
-
-      // Добавляем текущего игрока в список
-      players.push({ name: pigName, balance: balance });
-      players.sort((a, b) => b.balance - a.balance); // Сортировка по балансу
-
-      // Ограничиваем количество игроков топ 5
-      players.slice(0, 5).forEach(function(player) {
-        let li = document.createElement('li');
-        li.textContent = `${player.name}: ${player.balance} монет`;
-        topList.appendChild(li);
-      });
-
-      // Сохраняем список игроков
-      localStorage.setItem('players', JSON.stringify(players));
-
-      // Показываем/скрываем список
-      document.getElementById('topPlayers').style.display = document.getElementById('topPlayers').style.display === 'none' ? 'block' : 'none';
+    // Сохраняем имя свинки в Firebase
+    document.getElementById('pigNameInput').addEventListener('change', function() {
+      const pigName = document.getElementById('pigNameInput').value;
+      pigNameRef.set(pigName);  // Сохраняем имя свинки
     });
 
-    // Обработчик клика по кнопке "Сохранить"
-    document.getElementById('saveButton').addEventListener('click', function() {
-      pigName = document.getElementById('pigNameInput').value;
-      localStorage.setItem('pigName', pigName); // Сохраняем имя свинки
-
-      alert("Имя свинки сохранено!");
-    });
-
-    // Применяем заработанные монеты при отсутствии
-    applyOfflineEarnings();
-
-    // Отображаем текущее имя свинки в поле
-    document.getElementById('pigNameInput').value = pigName;
-
-    // Отображаем текущий баланс
-    updateBalanceDisplay();
   </script>
-
 </body>
 </html>
