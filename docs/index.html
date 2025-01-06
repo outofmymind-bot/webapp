@@ -55,7 +55,7 @@
   <h1>Добро пожаловать в игру!</h1>
   
   <div class="input-container">
-    <input type="text" id="pigNameInput" placeholder="Имя свинки">
+    <input type="text" id="pigNameInput" placeholder="Имя свинки" value="">
     <button class="save-button" id="saveButton">✔️</button>
   </div>
 
@@ -66,7 +66,7 @@
   <button id="upgradeButton">Прокачать</button>
   
   <div id="topPlayers">
-    <h2>Топ 10 игроков:</h2>
+    <h2>Топ 5 игроков:</h2>
     <ul id="topList"></ul>
   </div>
 
@@ -139,13 +139,15 @@
       let topList = document.getElementById('topList');
       topList.innerHTML = ''; // Очистить текущий список
 
-      // Получаем данные из localStorage и отображаем топ 10
+      // Получаем данные из localStorage и отображаем топ 5
       let players = JSON.parse(localStorage.getItem('players')) || [];
+
+      // Добавляем текущего игрока в список
       players.push({ name: pigName, balance: balance });
       players.sort((a, b) => b.balance - a.balance); // Сортировка по балансу
 
-      // Ограничиваем количество игроков топ 10
-      players.slice(0, 10).forEach(function(player) {
+      // Ограничиваем количество игроков топ 5
+      players.slice(0, 5).forEach(function(player) {
         let li = document.createElement('li');
         li.textContent = `${player.name}: ${player.balance} монет`;
         topList.appendChild(li);
@@ -163,18 +165,14 @@
       pigName = document.getElementById('pigNameInput').value;
       localStorage.setItem('pigName', pigName); // Сохраняем имя свинки
 
-      // Сохраняем монеты, которые должны добавляться каждые 3 секунды
-      let newIncrementValue = prompt("Введите, на сколько монет увеличивать баланс каждые 3 секунды:", incrementPer3Sec);
-      if (newIncrementValue) {
-        incrementPer3Sec = parseInt(newIncrementValue);
-        localStorage.setItem('incrementPer3Sec', incrementPer3Sec); // Сохраняем новое значение
-      }
-
-      alert("Изменения сохранены!");
+      alert("Имя свинки сохранено!");
     });
 
     // Применяем заработанные монеты при отсутствии
     applyOfflineEarnings();
+
+    // Отображаем текущее имя свинки в поле
+    document.getElementById('pigNameInput').value = pigName;
 
     // Отображаем текущий баланс
     updateBalanceDisplay();
