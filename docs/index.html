@@ -3,6 +3,15 @@
 <head>
 
 
+  // Функция сокращения чисел
+function formatNumber(number) {
+  if (number >= 1e9) return (number / 1e9).toFixed(1) + ' млрд';
+  if (number >= 1e6) return (number / 1e6).toFixed(1) + ' млн';
+  if (number >= 1e3) return (number / 1e3).toFixed(1) + ' к';
+  return number.toString();
+}
+  
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
   <title>Web App</title>
@@ -351,10 +360,6 @@
       }, 500);
     });
   </script>
-
-
-
-
 
 
 
