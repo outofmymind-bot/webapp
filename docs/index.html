@@ -145,6 +145,8 @@
     </div>
   </div>
 
+  <audio id="hryukSound" src="hryuk.mp3" preload="auto"></audio>
+
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
 
@@ -332,8 +334,12 @@
       hruText.style.top = `${clickY}px`;
       hruText.textContent = 'Хрю!';
 
-      // Увеличиваем баланс при клике на уровень "Прокачать"
-      updateBalance(upgradeLevel);
+      // Воспроизводим звук хрюкания
+      const hryukSound = document.getElementById('hryukSound');
+      hryukSound.play();
+
+      // Увеличиваем баланс при клике
+      updateBalance(hryukLevel);
 
       document.body.appendChild(hruText);
 
