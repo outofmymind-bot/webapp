@@ -122,6 +122,9 @@
   </style>
 </head>
 <body>
+  <!-- Добавление тега аудио для воспроизведения звука -->
+  <audio id="hryukSound" src="hryuk.mp3" preload="auto"></audio>
+
   <div class="pig-name-container">
     <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
     <button id="saveButton">✔</button>
@@ -331,6 +334,9 @@
       hruText.style.left = `${clickX}px`;
       hruText.style.top = `${clickY}px`;
       hruText.textContent = 'Хрю!';
+
+      // Воспроизводим звук хрюканья
+      document.getElementById('hryukSound').play();
 
       // Увеличиваем баланс при клике на уровень "Прокачать"
       updateBalance(upgradeLevel);
