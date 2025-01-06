@@ -32,9 +32,11 @@
       z-index: 1; /* Чтобы текст был поверх фона */
     }
 
-    h1, p {
+    #pigNameInput {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 18px;
       z-index: 1;
-      position: relative;
     }
 
     #upgradeButton, #hryukButton, #topButton {
@@ -62,9 +64,9 @@
   </style>
 </head>
 <body>
-  <h1>Добро пожаловать!</h1>
-  <p>Нажмите в любое место, чтобы заработать деньги!</p>
-  
+  <h1>Имя свинки:</h1>
+  <input type="text" id="pigNameInput" placeholder="Введите имя свинки">
+
   <div id="balance">Баланс: 0</div>
 
   <button id="upgradeButton">Прокачать (стоимость 100)</button>
@@ -72,7 +74,7 @@
   <button id="topButton">Лучшие</button>
 
   <div id="topPlayers">
-    <h2>Топ 10 игроков</h2>
+    <h2>Топ 10 пользователей</h2>
     <ul id="playersList"></ul>
   </div>
 
@@ -109,6 +111,7 @@
     // Ссылка на балансы в Firebase
     const balanceRef = firebase.database().ref('balances/' + userId);
     const clickValueRef = firebase.database().ref('clickValue/' + userId);
+    const pigNameRef = firebase.database().ref('pigNames/' + userId);
 
     // Начальная стоимость клика
     let clickValue = 1;
@@ -139,10 +142,18 @@
       }
     });
 
+    // Получаем имя свинки из Firebase
+    pigNameRef.once('value').then(function(snapshot) {
+      const storedPigName = snapshot.val();
+      if (storedPigName) {
+        document.getElementById('pigNameInput').value = storedPigName;
+      }
+    });
+
     // Обработчик клика по всей странице, исключая кнопки
     document.body.addEventListener('click', function(event) {
       // Проверяем, был ли клик сделан по кнопке
-      if (!event.target.closest('button')) {
+      if (!event.target.closest('button') && event.target !== document.getElementById('pigNameInput')) {
         updateBalance(clickValue); // При клике увеличиваем на текущую стоимость
       }
     });
@@ -180,19 +191,19 @@
 
     // Функция для получения топ-10 игроков
     function showTopPlayers() {
-      const topPlayersRef = firebase.database().ref('balances');
+      const topPlayersRef = firebase.database().ref('pigNames');
 
-      topPlayersRef.orderByValue().limitToLast(10).once('value', function(snapshot) {
+      topPlayersRef.once('value', function(snapshot) {
         const players = [];
         snapshot.forEach(function(childSnapshot) {
           const userId = childSnapshot.key;
-          const balance = childSnapshot.val();
-          players.push({ userId, balance });
+          const pigName = childSnapshot.val();
+          players.push({ userId, pigName });
         });
 
-        // Сортируем игроков по балансу в убывающем порядке
+        // Сортируем игроков по имени свинки
         players.sort(function(a, b) {
-          return b.balance - a.balance;
+          return a.pigName.localeCompare(b.pigName);
         });
 
         // Отображаем топ-10 игроков
@@ -201,17 +212,29 @@
 
         players.slice(0, 10).forEach(function(player, index) {
           const playerElement = document.createElement('li');
-          playerElement.textContent = `${index + 1}. ${player.userId} - Баланс: ${player.balance}`;
+          playerElement.textContent = `${index + 1}. ${player.pigName}`;
           playersList.appendChild(playerElement);
         });
 
         // Показываем список
         document.getElementById('topPlayers').style.display = 'block';
+
+        // Закрываем список через 10 секунд или при повторном нажатии на кнопку
+        setTimeout(function() {
+          document.getElementById('topPlayers').style.display = 'none';
+        }, 10000);
       });
     }
 
     // Обработчик клика по кнопке "Лучшие"
     document.getElementById('topButton').addEventListener('click', showTopPlayers);
+
+    // Сохраняем имя свинки в Firebase
+    document.getElementById('pigNameInput').addEventListener('change', function() {
+      const pigName = document.getElementById('pigNameInput').value;
+      pigNameRef.set(pigName);  // Сохраняем имя свинки
+    });
+
   </script>
 </body>
 </html>
