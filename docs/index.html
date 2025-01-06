@@ -62,13 +62,13 @@
 
     .button-container {
       display: flex;
-      flex-direction: column;
+      justify-content: space-evenly;  /* Выравнивание кнопок по ширине */
       width: 100%;
       margin-top: 20px;
     }
 
     .button-container button {
-      width: 100%;
+      width: 22%;  /* Сужаем ширину кнопок */
       padding: 15px;
       font-size: 16px;
       cursor: pointer;
@@ -193,6 +193,7 @@
     <button id="upgradeButton">Прокачать</button>
     <button id="hryukButton">Хрюкаем</button>
     <button id="topButton">Лучшие</button>
+    <button id="balanceButton">Баланс</button>
   </div>
 
   <div id="topPlayers" class="top-players-list">
