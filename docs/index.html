@@ -190,6 +190,16 @@
       }
     });
 
+    function updateBalance(amount) {
+      balanceRef.once('value').then(function(snapshot) {
+        let balance = snapshot.val();
+        balance = balance ? balance : 0;
+        balance += amount;
+        balanceRef.set(balance);
+        document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
+      });
+    }
+
     function formatNumber(number) {
       if (number >= 1e33) {
         return (number / 1e33).toFixed(2) + ' Дециллионов';
@@ -218,14 +228,6 @@
       }
     }
 
-    function updateButtonLabels() {
-      let upgradeCost = 100 * Math.pow(10, upgradeLevel - 1);
-      document.getElementById('upgradeButton').innerText = `Разовые хрюки (ур. ${upgradeLevel}) ${formatNumber(upgradeCost)} хрюканий`;
-
-      let hryukCost = 1000 * Math.pow(10, hryukLevel - 1);
-      document.getElementById('hryukButton').innerText = `Периодические похрюкивания (ур. ${hryukLevel}) ${formatNumber(hryukCost)} хрюканий`;
-    }
-
     balanceRef.once('value').then(function(snapshot) {
       const balance = snapshot.val();
       document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance || 0);
@@ -233,12 +235,12 @@
 
     upgradeLevelRef.once('value').then(function(snapshot) {
       upgradeLevel = snapshot.val() || 1;
-      updateButtonLabels(); 
+      document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
     });
 
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
-      updateButtonLabels(); 
+      document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
       startHryukanie();
     });
 
@@ -246,16 +248,6 @@
       setInterval(function() {
         updateBalance(hryukLevel);
       }, 1000);
-    }
-
-    function updateBalance(amount) {
-      balanceRef.once('value').then(function(snapshot) {
-        let balance = snapshot.val();
-        balance = balance ? balance : 0;
-        balance += amount;
-        balanceRef.set(balance);
-        document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-      });
     }
 
     document.getElementById('upgradeButton').addEventListener('click', function() {
@@ -268,7 +260,7 @@
           balanceRef.set(balance);
           upgradeLevelRef.set(upgradeLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          updateButtonLabels(); 
+          document.getElementById('upgradeButton').innerText = `Прокачать (ур. ${upgradeLevel})`;
         } else {
           alert(`Недостаточно средств для прокачки! Нужно еще ${cost - balance} монет.`);
         }
@@ -285,7 +277,7 @@
           balanceRef.set(balance);
           hryukLevelRef.set(hryukLevel);
           document.getElementById('balanceButton').innerText = "Нахрюкано " + formatNumber(balance);
-          updateButtonLabels(); 
+          document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
           startHryukanie();
         } else {
           alert(`Недостаточно средств для хрюканья! Нужно еще ${cost - balance} монет.`);
@@ -293,14 +285,128 @@
       });
     });
 
+    // Обработчик для кнопки "Лучшие"
     document.getElementById('topButton').addEventListener('click', function() {
-      const modal = document.getElementById('topModal');
-      modal.style.display = 'block';
+      const topPlayersRef = firebase.database().ref('balances');
+      
+      // Загружаем все данные пользователей
+      topPlayersRef.once('value', function(snapshot) {
+        const players = [];
+        
+        snapshot.forEach(function(childSnapshot) {
+          const userId = childSnapshot.key;
+          const balance = childSnapshot.val();
+          const pigNameRef = firebase.database().ref('pigNames/' + userId);  // Получаем имя свинки для этого пользователя
+
+          pigNameRef.once('value').then(function(pigNameSnapshot) {
+            const pigName = pigNameSnapshot.val() || 'Без имени';  // Получаем имя или ставим "Без имени"
+            
+            players.push({ userId, pigName, balance });
+
+            // После того, как все данные собраны, сортируем пользователей по балансу
+            if (players.length === snapshot.numChildren()) {
+              players.sort(function(a, b) {
+                return b.balance - a.balance;
+              });
+
+              // Отображаем топ 5 пользователей
+              const playersList = document.getElementById('topPlayersList');
+              playersList.innerHTML = ''; // Очищаем список перед добавлением новых данных
+
+              players.slice(0, 5).forEach(function(player, index) {
+                const playerElement = document.createElement('li');
+                playerElement.textContent = `${index + 1}. ${player.pigName} - Баланс: ${formatNumber(player.balance)}`;
+                playersList.appendChild(playerElement);
+              });
+
+              // Показываем модальное окно с топ-5
+              const modal = document.getElementById('topModal');
+              modal.style.display = 'block';
+
+              // Закрываем окно через 10 секунд
+              setTimeout(function() {
+                modal.style.display = 'none';
+              }, 10000);
+            }
+          });
+        });
+      });
     });
 
-    function closeModal() {
-      document.getElementById('topModal').style.display = 'none';
+    // Закрытие модального окна при клике на него
+    document.getElementById('topModal').addEventListener('click', function() {
+      this.style.display = 'none';
+    });
+
+    document.getElementById('pigNameInput').addEventListener('change', function() {
+      const pigName = document.getElementById('pigNameInput').value;
+      pigNameRef.set(pigName);
+      localStorage.setItem('pigName', pigName);
+    });
+
+    document.getElementById('saveButton').addEventListener('click', function() {
+      const pigName = document.getElementById('pigNameInput').value;
+      pigNameRef.set(pigName);
+      localStorage.setItem('pigName', pigName);
+    });
+
+    // Новый обработчик для клика по экрану
+    document.body.addEventListener('click', function(event) {
+      const clickX = event.pageX;
+      const clickY = event.pageY;
+
+      // Отображаем "Хрю!" в месте клика
+      const hruText = document.createElement('div');
+      hruText.classList.add('hryu-text');
+      hruText.style.left = `${clickX}px`;
+      hruText.style.top = `${clickY}px`;
+      hruText.textContent = 'Хрю!';
+
+      // Воспроизводим звук хрюканья
+      document.getElementById('hryukSound').play();
+
+      // Увеличиваем баланс при клике на уровень "Прокачать"
+      updateBalance(upgradeLevel);
+
+      document.body.appendChild(hruText);
+
+      // Анимация исчезновения текста
+      setTimeout(function() {
+        hruText.remove();
+      }, 500);
+    });
+  </script>
+
+  <script>
+    // Переменные для хранения времени последнего посещения
+    const lastVisitRef = firebase.database().ref('lastVisit/' + userId);
+
+    // Функция для расчёта баланса за время оффлайн
+    function calculateOfflineBalance() {
+      lastVisitRef.once('value').then((snapshot) => {
+        const lastVisit = snapshot.val();
+        const currentTime = Date.now();
+
+        // Если время последнего визита существует, рассчитываем разницу
+        if (lastVisit) {
+          const offlineTime = currentTime - lastVisit;
+
+          // Конвертируем время в секунды
+          const offlineSeconds = Math.floor(offlineTime / 1000);
+
+          // Рассчитываем количество монет, которые могут быть начислены за это время (например, 1 монета за 10 секунд)
+          const offlineCoins = Math.floor(offlineSeconds / 10);
+
+          // Обновляем баланс
+          updateBalance(offlineCoins);
+        }
+
+        // Обновляем время последнего визита на текущее время
+        lastVisitRef.set(currentTime);
+      });
     }
+
+    calculateOfflineBalance();
   </script>
 </body>
 </html>
