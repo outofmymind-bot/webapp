@@ -125,7 +125,17 @@
     hryukLevelRef.once('value').then(function(snapshot) {
       hryukLevel = snapshot.val() || 1;
       document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
+      
+      // Начинаем начисление с сохраненного уровня хрюканья
+      startHryukanie(); // Обновляем функцию для ежесекундного начисления
     });
+
+    // Функция для ежесекундного начисления в зависимости от уровня хрюканья
+    function startHryukanie() {
+      setInterval(function() {
+        updateBalance(hryukLevel);  // Каждый уровень добавляет +1, +2, +3 и т. д.
+      }, 1000);  // Начисление каждую секунду
+    }
 
     // Обработчик нажатия на кнопку прокачки
     document.getElementById('upgradeButton').addEventListener('click', function() {
@@ -159,10 +169,8 @@
           document.getElementById('balance').innerText = "Баланс: " + balance;
           document.getElementById('hryukButton').innerText = `Хрюкаем (ур. ${hryukLevel})`;
 
-          // Начинаем начисление монет каждую секунду
-          setInterval(function() {
-            updateBalance(hryukLevel);  // На каждом уровне добавляется +1, +2, +3 и т. д.
-          }, 1000);
+          // Начинаем начисление монет каждую секунду, если еще не началось
+          startHryukanie();
         } else {
           alert("Недостаточно средств для хрюканья!");
         }
